@@ -1,0 +1,62 @@
+import React, { useState } from 'react'
+
+export default function Sidebar({ onNavigate, currentPage }) {
+  const [collapsed, setCollapsed] = useState(false)
+  
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'productos', label: 'Productos', icon: '📦' },
+    { id: 'usuarios', label: 'Usuarios', icon: '👥' },
+    { id: 'metodosPago', label: 'Métodos Pago', icon: '💳' },
+    { id: 'direcciones', label: 'Direcciones', icon: '🏠' },
+    { id: 'pedidos', label: 'Pedidos', icon: '🛒' },
+  ]
+  
+  return (
+    <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+      <div className="sidebar-header">
+        <h2 className="sidebar-logo">
+          {collapsed ? '🛒' : 'Market Admin'}
+        </h2>
+        <button 
+          className="sidebar-toggle"
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          {collapsed ? '→' : '←'}
+        </button>
+      </div>
+      
+      <nav className="sidebar-nav">
+        <ul className="sidebar-menu">
+          {menuItems.map(item => (
+            <li 
+              key={item.id}
+              className={`sidebar-item ${currentPage === item.id ? 'active' : ''}`}
+              onClick={() => onNavigate(item.id)}
+            >
+              <span className="sidebar-icon">{item.icon}</span>
+              {!collapsed && <span className="sidebar-label">{item.label}</span>}
+            </li>
+          ))}
+        </ul>
+      </nav>
+      
+      <div className="sidebar-footer">
+        <div className="sidebar-user">
+          <div className="sidebar-user-avatar">👤</div>
+          {!collapsed && (
+            <div className="sidebar-user-info">
+              <p className="sidebar-user-name">Administrador</p>
+              <button 
+                className="sidebar-logout-btn"
+                onClick={() => onNavigate('logout')}
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </aside>
+  )
+}

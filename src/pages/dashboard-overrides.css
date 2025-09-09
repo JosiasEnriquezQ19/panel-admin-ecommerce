@@ -1,0 +1,57 @@
+/* Overrides y layout para el Dashboard: dos columnas y gráficos debajo de Últimos Pedidos */
+.dashboard-sections.two-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-top: 18px;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Cuando hay espacio, dos columnas proporcionales: izquierda 65% - derecha 35% */
+@media (min-width: 980px) {
+  .dashboard-sections.two-columns {
+    grid-template-columns: 65% 35%;
+    align-items: start;
+  }
+}
+
+.dashboard-section {
+  background: linear-gradient(180deg,#ffffff,#fbfdff);
+  border: 1px solid rgba(15,76,129,0.04);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(11,92,255,0.04);
+}
+
+.charts-section .charts-overview {
+  margin-top: 12px;
+}
+
+/* Ajustes para que tablas y charts se vean ordenados y proporcionados */
+.mini-table, .products-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mini-table th, .mini-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.section-footer { margin-top: 12px }
+
+@media (max-width: 640px) {
+  .dashboard-sections.two-columns { grid-template-columns: 1fr }
+}

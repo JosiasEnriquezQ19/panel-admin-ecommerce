@@ -1,0 +1,408 @@
+.charts-overview {
+  display: grid;
+  grid-template-columns: 1fr 1fr 400px;
+  gap: 28px;
+  margin-top: 20px;
+  opacity: 0;
+  transform: translateY(15px);
+  animation: fadeInCharts 0.8s ease forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeInCharts {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart-card {
+  background: linear-gradient(180deg, #ffffff, #f9fbff);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.chart-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+}
+
+.chart-card h4 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Chart containers */
+.chart-inner {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Chart wide specific styles */
+.chart-card.chart-wide {
+  overflow: visible;
+}
+
+.chart-card.chart-wide .chart-inner {
+  min-height: 320px;
+  overflow: visible;
+}
+
+/* Bar chart styles - NEW IMPLEMENTATION */
+.horizontal-bars-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.horizontal-bar-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 60px;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  opacity: 0;
+  transform: translateX(-20px);
+  animation: fadeInBar 0.5s forwards;
+}
+
+@keyframes fadeInBar {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.horizontal-bar-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.horizontal-bar-row:nth-child(odd) {
+  background-color: #f1f5f9;
+}
+
+/* Estilos para productos sin ventas */
+.horizontal-bar-row.zero-value {
+  opacity: 0.7;
+}
+
+.horizontal-bar-row.zero-value .bar-product-name,
+.horizontal-bar-row.zero-value .bar-value {
+  color: #64748b;
+}
+
+.bar-product-name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-container {
+  height: 30px;
+  background-color: #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+}
+
+.bar-zero-sales {
+  padding: 0 12px;
+  font-size: 14px;
+  font-style: italic;
+  color: #94a3b8;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 6px;
+  position: relative;
+  animation-name: growBar;
+  animation-duration: 1s;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-fill-mode: forwards;
+}
+
+/* Añadir un pequeño brillo al final de cada barra para mejor visualización */
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: rgba(255,255,255,0.4);
+}
+
+@keyframes growBar {
+  from { width: 0; }
+  to { width: var(--target-width); }
+}
+
+.bar-value {
+  font-weight: 700;
+  color: #334155;
+  text-align: right;
+  font-size: 16px;
+}
+
+/* Badges para unidades */
+.units-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  padding: 0 10px;
+  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
+}
+
+.zero-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e2e8f0;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  padding: 0 10px;
+}
+
+/* Estilos para los top sellers */
+.bar-fill.top-seller {
+  background: linear-gradient(90deg, #4f46e5, #818cf8) !important;
+  box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3);
+}
+
+.top-seller-badge {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  color: #4f46e5;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+}
+
+.bar-label-svg {
+  font-size: 16px;
+  fill: #334155;
+  font-weight: 500;
+}
+
+.bar-value-svg {
+  font-size: 16px;
+  fill: #475569;
+  font-weight: 600;
+}
+
+.tick-label {
+  font-size: 12px;
+  fill: #64748b;
+  font-weight: 500;
+}
+
+.axis-label {
+  font-size: 12px;
+  fill: #94a3b8;
+}
+
+.bar-value-small {
+  font-size: 13px;
+  fill: #1e293b;
+  font-weight: 600;
+}
+
+/* Vertical chart */
+.chart-vertical svg {
+  width: 100%;
+  height: 280px;
+}
+
+/* Donut chart */
+.chart-donut {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.donut-svg {
+  width: 200px;
+  height: 200px;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-left: 12px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.legend-row:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.legend-label {
+  font-size: 14px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.legend-value {
+  margin-left: auto;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Enhanced tooltip */
+.chart-tooltip {
+  position: absolute;
+  background: rgba(15,23,42,0.96);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  pointer-events: none;
+  transform: translate(-8px,-8px);
+  z-index: 50;
+  min-width: 160px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.chart-tooltip .tt-label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
+.chart-tooltip .tt-value {
+  opacity: 0.9;
+}
+
+/* Empty state */
+.empty {
+  color: #64748b;
+  padding: 40px 20px;
+  text-align: center;
+  font-style: italic;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+}
+
+/* Animation for chart elements */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Chart animation triggers */
+.chart-card.loaded svg rect {
+  animation: growBar 1s ease-out forwards;
+}
+
+.chart-card.loaded svg g {
+  animation: fadeUp 0.5s ease-out forwards;
+}
+
+/* Enhanced bar animations */
+svg rect { 
+  transition: width 800ms cubic-bezier(.17,.67,.35,1.25), 
+              fill 300ms,
+              height 800ms cubic-bezier(.17,.67,.35,1.25),
+              y 800ms cubic-bezier(.17,.67,.35,1.25);
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .charts-overview {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .chart-card.chart-wide {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+  .chart-card.chart-wide .chart-inner {
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 992px) {
+  .chart-inner {
+    min-height: 180px;
+  }
+  .chart-card.chart-wide .chart-inner {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .charts-overview {
+    grid-template-columns: 1fr;
+  }
+  .chart-inner {
+    min-height: 180px;
+  }
+  .chart-card {
+    padding: 16px;
+  }
+  .chart-card h4 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .donut-svg {
+    width: 160px;
+    height: 160px;
+  }
+}
