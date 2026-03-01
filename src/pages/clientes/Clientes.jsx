@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import DetalleCliente from '../../components/clientes/DetalleCliente'
 import ListaClientes from '../../components/clientes/ListaClientes'
 import FormCliente from '../../components/clientes/FormCliente'
-import '../../components/clientes/clientes-minimalista.css'
+import '../../pages/categorias/categorias.css' // Shared theme
 import { API_BASE } from '../../utils/api'
 
 
@@ -21,28 +21,28 @@ export default function Clientes() {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null)
   const [vistaActual, setVistaActual] = useState(VISTAS.LISTA)
   const [busqueda, setBusqueda] = useState('')
-  
+
   useEffect(() => {
-  fetchClientes()
+    fetchClientes()
   }, [])
-  
+
   // Filtrar clientes según la búsqueda
   const clientesFiltrados = useMemo(() => {
     if (!busqueda) return clientes
-    
+
     const busquedaLower = busqueda.toLowerCase()
-    return clientes.filter(cliente => 
-      cliente.nombre?.toLowerCase().includes(busquedaLower) || 
+    return clientes.filter(cliente =>
+      cliente.nombre?.toLowerCase().includes(busquedaLower) ||
       cliente.apellido?.toLowerCase().includes(busquedaLower) ||
       cliente.email?.toLowerCase().includes(busquedaLower) ||
       cliente.telefono?.toLowerCase().includes(busquedaLower)
     )
   }, [clientes, busqueda])
-  
+
   async function fetchClientes() {
     setLoading(true)
     setError(null)
-    
+
     try {
       const token = localStorage.getItem('token')
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
@@ -76,11 +76,11 @@ export default function Clientes() {
       setLoading(false)
     }
   }
-  
+
   const verDetalles = async (id) => {
     setLoadingDetalle(true)
     setError(null)
-    
+
     try {
       const token = localStorage.getItem('token')
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
@@ -116,7 +116,7 @@ export default function Clientes() {
       setLoadingDetalle(false)
     }
   }
-  
+
   const volverALista = () => {
     setVistaActual(VISTAS.LISTA)
     setClienteSeleccionado(null)
@@ -148,11 +148,11 @@ export default function Clientes() {
     fetchClientes()
     setVistaActual(VISTAS.LISTA)
   }
-  
+
   const handleBusquedaChange = (e) => {
     setBusqueda(e.target.value)
   }
-  
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -161,23 +161,23 @@ export default function Clientes() {
       </div>
     )
   }
-  
+
   return (
-    <div className="clientes-page">
+    <div className="categorias-page">
       <header className="page-header">
         <h2>Gestión de Clientes</h2>
-        {clientes.length > 0 && 
+        {clientes.length > 0 &&
           <span className="results-badge">
             {clientesFiltrados.length} clientes
           </span>
         }
       </header>
-      
+
       {error && (
         <div className="error">
           <p>{error}</p>
-          <button 
-            className="alert-close" 
+          <button
+            className="alert-close"
             onClick={() => setError(null)}
           >
             ×
@@ -186,8 +186,8 @@ export default function Clientes() {
       )}
 
       {/* Navegación superior - Sin botón de crear */}
-      <div className="clientes-nav">
-        <button 
+      <div className="productos-nav">
+        <button
           onClick={volverALista}
           className={vistaActual === VISTAS.LISTA ? 'active' : ''}
         >
@@ -198,16 +198,18 @@ export default function Clientes() {
       {/* Renderizado condicional de vistas */}
       {vistaActual === VISTAS.LISTA && (
         <div className="vista-lista-clientes">
-          <div className="search-container">
-            <input 
-              type="text" 
-              placeholder="Buscar por nombre, email o teléfono..." 
-              className="search-input"
-              value={busqueda}
-              onChange={handleBusquedaChange}
-            />
+          <div className="filtros-container">
+            <div className="filtro-busqueda">
+              <input
+                type="text"
+                placeholder="Buscar por nombre, email o teléfono..."
+                className="filtro-input"
+                value={busqueda}
+                onChange={handleBusquedaChange}
+              />
+            </div>
           </div>
-          
+
           {loading ? (
             <div className="loading-container">
               <div className="spinner"></div>
@@ -222,9 +224,9 @@ export default function Clientes() {
               )}
             </div>
           ) : (
-            <ListaClientes 
-              clientes={clientesFiltrados} 
-              onView={verDetalles} 
+            <ListaClientes
+              clientes={clientesFiltrados}
+              onView={verDetalles}
               onDelete={handleEliminar}
             />
           )}
@@ -249,9 +251,9 @@ export default function Clientes() {
               <p>Cargando detalles del cliente...</p>
             </div>
           ) : (
-            <DetalleCliente 
-              cliente={clienteSeleccionado} 
-              onClose={volverALista} 
+            <DetalleCliente
+              cliente={clienteSeleccionado}
+              onClose={volverALista}
             />
           )}
         </div>

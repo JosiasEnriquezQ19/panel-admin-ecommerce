@@ -111,7 +111,7 @@ export default function DetalleCliente({ cliente, onClose }) {
       </div>
     );
   }
-  
+
   // Manejo de posibles variaciones en nombres de campo
   const id = cliente.usuarioId || cliente.id || '';
   const nombre = cliente.nombre || '';
@@ -124,182 +124,98 @@ export default function DetalleCliente({ cliente, onClose }) {
   const codigoPostal = cliente.codigoPostal || (cliente.direccion?.codigoPostal) || '';
   const fechaCreacion = cliente.fechaCreacion || cliente.createdAt || '';
   const fechaActualizacion = cliente.fechaActualizacion || cliente.updatedAt || '';
-  
+
   return (
-    <div className="detalle-cliente-container">
-      {/* Header con botón volver */}
-      <div className="detalle-header-simple">
-        <button 
-          className="btn-volver-simple"
+    <div className="card-content">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <h3 className="card-title" style={{ margin: 0, color: 'white' }}>Detalles del Usuario</h3>
+        <button
+          className="btn-secondary"
           onClick={onClose}
-          title="Volver a la lista"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          ← Volver a la lista
+          <span>←</span> Volver
         </button>
       </div>
 
-      {/* Card principal del cliente */}
-      <div className="cliente-card-principal">
-        {/* Header del cliente */}
-        <div className="cliente-header">
-          <div className="cliente-avatar-info">
-            <div className={`cliente-avatar ${estado === 'activo' ? 'activo' : 'inactivo'}`}>
-              {(nombre || '?').charAt(0).toUpperCase()}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '30px', alignItems: 'start' }}>
+
+        {/* Left Column: Profile Card */}
+        <div style={{ background: '#1e1e2d', borderRadius: '16px', padding: '30px', border: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent), #4f46e5)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '20px', boxShadow: '0 8px 16px rgba(108, 93, 211, 0.4)' }}>
+            {(nombre || '?').charAt(0).toUpperCase()}
+          </div>
+
+          <h2 style={{ color: 'white', margin: '0 0 8px 0', fontSize: '1.5rem' }}>{nombre} {apellido}</h2>
+          <p style={{ color: 'var(--text-muted)', margin: 0 }}>{id}</p>
+
+          <div style={{ marginTop: '20px', padding: '8px 16px', background: estado === 'activo' ? 'rgba(0, 214, 143, 0.15)' : 'rgba(255, 107, 107, 0.15)', borderRadius: '20px', color: estado === 'activo' ? '#00d68f' : '#ff6b6b', fontWeight: '600', fontSize: '0.9rem' }}>
+            {estado === 'activo' ? 'Activo' : 'Inactivo'}
+          </div>
+
+          <div style={{ width: '100%', marginTop: '30px', borderTop: '1px solid var(--border-light)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '1.2rem' }}>📧</span>
+              <span style={{ color: 'white' }}>{email}</span>
             </div>
-            <div className="cliente-info-basica">
-              <h1 className="cliente-nombre">{nombre} {apellido}</h1>
-              <p className="cliente-email">{email}</p>
-              <div className="cliente-meta">
-                <span className="cliente-id">ID: {id}</span>
-                <span className={`cliente-estado ${estado}`}>
-                  <span className="estado-dot"></span>
-                  {estado === 'activo' ? 'Activo' : 'Inactivo'}
-                </span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '1.2rem' }}>📱</span>
+              <span style={{ color: 'white' }}>{telefono || 'Sin teléfono'}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '1.2rem' }}>📅</span>
+              <span>Registrado: {fechaCreacion ? new Date(fechaCreacion).toLocaleDateString() : 'N/A'}</span>
             </div>
           </div>
-          
-          <div className="cliente-actions">
-            <button className="btn-accion-secundario">
-              ✏️ Editar
-            </button>
-          </div>
         </div>
 
-        {/* Información de contacto rápida */}
-        <div className="contacto-rapido">
-          <div className="contacto-item">
-            <span className="contacto-icono">📱</span>
-            <span className="contacto-texto">{telefono || 'Sin teléfono'}</span>
-          </div>
-          <div className="contacto-item">
-            <span className="contacto-icono">�</span>
-            <span className="contacto-texto">
-              Cliente desde {fechaCreacion ? new Date(fechaCreacion).toLocaleDateString('es-ES', {
-                year: 'numeric',
-                month: 'long'
-              }) : 'fecha desconocida'}
-            </span>
-          </div>
-        </div>
-      </div>
+        {/* Right Column: Details & Addresses */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-      {/* Grid de secciones */}
-      <div className="detalle-grid">
-        {/* Métodos de Pago ocultos temporalmente
-        <div className="seccion-card">
-          <div className="seccion-header">
-            <h3>💳 Métodos de Pago</h3>
-            <span className="seccion-count">{metodosPago.length}</span>
-          </div>
-          <div className="seccion-contenido">
-            {loadingMetodos ? (
-              <div className="estado-loading">
-                <div className="spinner-sm"></div>
-                <span>Cargando...</span>
-              </div>
-            ) : errorMetodos ? (
-              <div className="estado-error">
-                <span>⚠️</span>
-                <span>Error al cargar métodos de pago</span>
-              </div>
-            ) : metodosPago.length === 0 ? (
-              <div className="estado-vacio">
-                <span>💳</span>
-                <span>No hay métodos de pago</span>
-              </div>
-            ) : (
-              <div className="items-grid">
-                {metodosPago.map(metodo => (
-                  <div key={metodo.metodoPagoId || metodo.id} className="item-card metodo-item">
-                    <div className="item-header">
-                      <span className="item-icono">
-                        {getTipoTarjetaIcon(metodo.tipoTarjeta || metodo.TipoTarjeta || metodo.tipo)}
-                      </span>
-                      <div className="item-info">
-                        <span className="item-titulo">
-                          {metodo.tipoTarjeta || metodo.TipoTarjeta || metodo.tipo || 'Tarjeta'}
-                        </span>
-                        {metodo.esPrincipal && (
-                          <span className="badge-principal">Principal</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="metodo-numero">
-                      •••• •••• •••• {metodo.ultimosCuatroDigitos || metodo.ultimos4 || '****'}
-                    </div>
-                    <div className="metodo-expira">
-                      Exp: {formatearExpiracion(
-                        metodo.mesExpiracion || metodo.mes, 
-                        metodo.añoExpiracion || metodo.ano
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-        */}
+          {/* Addresses Section */}
+          <div style={{ background: '#1e1e2d', borderRadius: '16px', padding: '24px', border: '1px solid var(--border-light)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h4 style={{ color: 'white', margin: 0, fontSize: '1.1rem' }}>📍 Direcciones Guardadas</h4>
+              <span style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.8rem', color: 'white' }}>{direcciones.length}</span>
+            </div>
 
-        {/* Direcciones */}
-        <div className="seccion-card">
-          <div className="seccion-header">
-            <h3>📍 Direcciones</h3>
-            <span className="seccion-count">{direcciones.length}</span>
-          </div>
-          
-          <div className="seccion-contenido">
             {loadingDirecciones ? (
-              <div className="estado-loading">
-                <div className="spinner-sm"></div>
-                <span>Cargando...</span>
-              </div>
-            ) : errorDirecciones ? (
-              <div className="estado-error">
-                <span>⚠️</span>
-                <span>Error al cargar direcciones</span>
-              </div>
+              <p style={{ color: 'var(--text-muted)' }}>Cargando direcciones...</p>
             ) : direcciones.length === 0 ? (
-              <div className="estado-vacio">
-                <span>📍</span>
-                <span>No hay direcciones</span>
+              <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)', fontStyle: 'italic', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                No hay direcciones registradas
               </div>
             ) : (
-              <div className="items-list">
-                {direcciones.map(direccion => (
-                  <div key={direccion.direccionId || direccion.id} className="item-card direccion-item">
-                    <div className="item-header">
-                      <span className="item-icono">
-                        {getTipoDireccionIcon(direccion)}
-                      </span>
-                      <div className="item-info">
-                        <span className="item-titulo">
-                          {direccion.calle || direccion.callePrincipal || direccion.direccion || 'Dirección'}
-                        </span>
-                        <span className="direccion-id">ID: {direccion.direccionId || direccion.id}</span>
-                      </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                {direcciones.map((dir, idx) => (
+                  <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '1.2rem' }}>{getTipoDireccionIcon(dir)}</span>
+                      <span style={{ color: 'white', fontWeight: '500' }}>{dir.calle ? 'Casa/Oficina' : 'Dirección'}</span>
                     </div>
-                    <div className="direccion-detalles">
-                      <div className="direccion-linea">
-                        {(direccion.colonia || direccion.barrio) && 
-                          <span>{direccion.colonia || direccion.barrio}, </span>
-                        }
-                        <span>{direccion.ciudad || direccion.city || 'Ciudad'}</span>
-                      </div>
-                      <div className="direccion-linea">
-                        <span>{direccion.estado || direccion.provincia || 'Estado'}</span>
-                        {(direccion.codigoPostal || direccion.cp) && 
-                          <span> - CP {direccion.codigoPostal || direccion.cp}</span>
-                        }
-                      </div>
-                    </div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0, lineHeight: '1.5' }}>
+                      {formatearDireccionCompleta(dir)}
+                    </p>
                   </div>
                 ))}
               </div>
             )}
           </div>
+
+          {/* Basic Stats or Extra Info */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <div style={{ background: '#1e1e2d', borderRadius: '16px', padding: '20px', border: '1px solid var(--border-light)' }}>
+              <h4 style={{ color: 'var(--text-muted)', margin: '0 0 10px 0', fontSize: '0.9rem', textTransform: 'uppercase' }}>Compras Totales</h4>
+              <div style={{ color: 'white', fontSize: '2rem', fontWeight: 'bold' }}>0</div>
+            </div>
+            <div style={{ background: '#1e1e2d', borderRadius: '16px', padding: '20px', border: '1px solid var(--border-light)' }}>
+              <h4 style={{ color: 'var(--text-muted)', margin: '0 0 10px 0', fontSize: '0.9rem', textTransform: 'uppercase' }}>Última Actividad</h4>
+              <div style={{ color: 'white', fontSize: '1.1rem' }}>{fechaActualizacion ? new Date(fechaActualizacion).toLocaleDateString() : 'N/A'}</div>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </div>
   );

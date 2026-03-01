@@ -1,352 +1,181 @@
+/* Minimal Dark Charts */
 .charts-overview {
   display: grid;
-  grid-template-columns: 1fr 1fr 400px;
-  gap: 28px;
-  margin-top: 20px;
-  opacity: 0;
-  transform: translateY(15px);
-  animation: fadeInCharts 0.8s ease forwards;
-  animation-delay: 0.3s;
-}
-
-@keyframes fadeInCharts {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  grid-template-columns: repeat(3, 1fr);
+  /* Force 3 columns for the top row */
+  gap: 24px;
+  width: 100%;
 }
 
 .chart-card {
-  background: linear-gradient(180deg, #ffffff, #f9fbff);
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.06);
-  border: 1px solid rgba(0,0,0,0.04);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 0;
+  box-shadow: none;
+  border: 1px solid var(--border-light);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.chart-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+.chart-span-2 {
+  grid-column: span 2;
+}
+
+.chart-span-3 {
+  grid-column: span 3;
 }
 
 .chart-card h4 {
-  margin: 0 0 20px 0;
-  font-size: 20px;
+  margin: 20px 24px 10px;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-main);
 }
 
 /* Chart containers */
 .chart-inner {
-  min-height: 220px;
+  padding: 0 20px 20px;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  min-height: 250px;
 }
 
-/* Chart wide specific styles */
-.chart-card.chart-wide {
-  overflow: visible;
-}
-
-.chart-card.chart-wide .chart-inner {
-  min-height: 320px;
-  overflow: visible;
-}
-
-/* Bar chart styles - NEW IMPLEMENTATION */
+/* Horizontal Bar Rows (Product Stock) */
 .horizontal-bars-container {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  padding: 0 20px 20px;
+  width: 100%;
 }
 
 .horizontal-bar-row {
   display: grid;
-  grid-template-columns: 200px 1fr 60px;
+  grid-template-columns: 160px 1fr 50px;
+  /* Reduced name width slightly to give more room to bar */
   align-items: center;
   gap: 16px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background-color: #f8fafc;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  opacity: 0;
-  transform: translateX(-20px);
-  animation: fadeInBar 0.5s forwards;
-}
-
-@keyframes fadeInBar {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  padding: 16px 20px;
+  /* Increased padding */
+  border-radius: 12px;
+  background-color: #27273a;
+  border: 1px solid var(--border-light);
+  transition: transform 0.2s ease, background 0.2s;
 }
 
 .horizontal-bar-row:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background-color: #323246;
+  transform: translateX(4px);
+  border-color: var(--accent);
 }
 
 .horizontal-bar-row:nth-child(odd) {
-  background-color: #f1f5f9;
+  background-color: #2b2b3d;
 }
 
-/* Estilos para productos sin ventas */
 .horizontal-bar-row.zero-value {
-  opacity: 0.7;
-}
-
-.horizontal-bar-row.zero-value .bar-product-name,
-.horizontal-bar-row.zero-value .bar-value {
-  color: #64748b;
+  opacity: 0.6;
 }
 
 .bar-product-name {
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 16px;
+  font-size: 0.9rem;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 500;
 }
 
 .bar-container {
-  height: 30px;
-  background-color: #e2e8f0;
-  border-radius: 8px;
+  height: 24px;
+  background-color: #383848;
+  /* High contrast track */
+  border-radius: 99px;
+  /* Capsule */
   overflow: hidden;
+  width: 100%;
   position: relative;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-  display: flex;
-  align-items: center;
-}
-
-.bar-zero-sales {
-  padding: 0 12px;
-  font-size: 14px;
-  font-style: italic;
-  color: #94a3b8;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .bar-fill {
   height: 100%;
-  width: 0;
-  border-radius: 6px;
+  border-radius: 99px;
+  background: var(--accent);
+  box-shadow: 0 0 15px var(--accent-light);
+  min-width: 12px;
   position: relative;
-  animation-name: growBar;
-  animation-duration: 1s;
-  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  animation-fill-mode: forwards;
-}
-
-/* Añadir un pequeño brillo al final de cada barra para mejor visualización */
-.bar-fill::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  width: 4px;
-  background: rgba(255,255,255,0.4);
-}
-
-@keyframes growBar {
-  from { width: 0; }
-  to { width: var(--target-width); }
 }
 
 .bar-value {
-  font-weight: 700;
-  color: #334155;
-  text-align: right;
-  font-size: 16px;
-}
-
-/* Badges para unidades */
-.units-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: white;
-  font-size: 14px;
+  color: var(--text-main);
   font-weight: 600;
-  min-width: 30px;
-  height: 30px;
-  border-radius: 15px;
-  padding: 0 10px;
-  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
+  font-size: 0.9rem;
 }
 
-.zero-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #e2e8f0;
-  color: #94a3b8;
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 30px;
-  height: 30px;
-  border-radius: 15px;
-  padding: 0 10px;
-}
-
-/* Estilos para los top sellers */
-.bar-fill.top-seller {
-  background: linear-gradient(90deg, #4f46e5, #818cf8) !important;
-  box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3);
+/* Top Seller Badge */
+.top-seller {
+  background: linear-gradient(90deg, #6c5dd3, #8a7df0) !important;
 }
 
 .top-seller-badge {
   position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.9);
-  color: #4f46e5;
-  font-size: 11px;
-  font-weight: 700;
+  right: 0;
+  top: -20px;
+  background: #6c5dd3;
+  color: white;
+  font-size: 10px;
   padding: 2px 6px;
-  border-radius: 10px;
-  letter-spacing: 0.5px;
+  border-radius: 4px;
+  font-weight: bold;
 }
 
-.bar-label-svg {
-  font-size: 16px;
-  fill: #334155;
-  font-weight: 500;
-}
-
-.bar-value-svg {
-  font-size: 16px;
-  fill: #475569;
-  font-weight: 600;
-}
-
-.tick-label {
-  font-size: 12px;
-  fill: #64748b;
-  font-weight: 500;
-}
-
-.axis-label {
-  font-size: 12px;
-  fill: #94a3b8;
-}
-
-.bar-value-small {
-  font-size: 13px;
-  fill: #1e293b;
-  font-weight: 600;
-}
-
-/* Vertical chart */
-.chart-vertical svg {
-  width: 100%;
-  height: 280px;
-}
-
-/* Donut chart */
-.chart-donut {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.donut-svg {
-  width: 200px;
-  height: 200px;
-}
-
+/* Donut Chart Legend */
 .donut-legend {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-left: 12px;
+  gap: 8px;
+  margin-left: 20px;
 }
 
 .legend-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  transition: background 0.2s;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.2s;
 }
 
 .legend-row:hover {
-  background: rgba(0,0,0,0.03);
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .legend-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
 }
 
-.legend-label {
-  font-size: 14px;
-  color: #334155;
-  font-weight: 500;
-}
-
-.legend-value {
-  margin-left: auto;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-/* Enhanced tooltip */
-.chart-tooltip {
-  position: absolute;
-  background: rgba(15,23,42,0.96);
-  color: #fff;
-  padding: 12px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  pointer-events: none;
-  transform: translate(-8px,-8px);
-  z-index: 50;
-  min-width: 160px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.chart-tooltip .tt-label {
-  font-weight: 600;
-  margin-bottom: 5px;
-  font-size: 15px;
-}
-
-.chart-tooltip .tt-value {
-  opacity: 0.9;
-}
-
-/* Empty state */
+/* Empty State */
 .empty {
-  color: #64748b;
-  padding: 40px 20px;
-  text-align: center;
+  color: var(--text-muted);
   font-style: italic;
-  background: #f8fafc;
-  border-radius: 10px;
-  border: 1px dashed #cbd5e1;
+  text-align: center;
+  padding: 40px;
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
 }
 
-/* Animation for chart elements */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Chart animation triggers */
+/* Animation triggers */
 .chart-card.loaded svg rect {
   animation: growBar 1s ease-out forwards;
 }
@@ -355,54 +184,118 @@
   animation: fadeUp 0.5s ease-out forwards;
 }
 
-/* Enhanced bar animations */
-svg rect { 
-  transition: width 800ms cubic-bezier(.17,.67,.35,1.25), 
-              fill 300ms,
-              height 800ms cubic-bezier(.17,.67,.35,1.25),
-              y 800ms cubic-bezier(.17,.67,.35,1.25);
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Responsive styles */
+@keyframes growBar {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: var(--target-width);
+  }
+}
+
+/* Simple List for Last Clients */
+.simple-list-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.simple-list-row:last-child {
+  border-bottom: none;
+}
+
+.client-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d68f, #00b87a);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  margin-right: 12px;
+}
+
+.client-info {
+  flex: 1;
+}
+
+.client-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.client-email {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.client-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Tooltip dark override */
+.chart-tooltip {
+  background: #1e1e2d;
+  color: white;
+  border: 1px solid var(--border-light);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  padding: 8px 12px;
+  border-radius: 8px;
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
 @media (max-width: 1200px) {
   .charts-overview {
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    /* 2 columns tablet */
   }
-  .chart-card.chart-wide {
-    grid-column: 1 / -1;
-    order: -1;
-  }
-  .chart-card.chart-wide .chart-inner {
-    min-height: 250px;
+
+  .chart-span-2 {
+    grid-column: span 2;
   }
 }
 
-@media (max-width: 992px) {
-  .chart-inner {
-    min-height: 180px;
-  }
-  .chart-card.chart-wide .chart-inner {
-    min-height: 220px;
-  }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .charts-overview {
     grid-template-columns: 1fr;
+    /* 1 column mobile */
   }
-  .chart-inner {
-    min-height: 180px;
+
+  .chart-span-2 {
+    grid-column: span 1;
   }
-  .chart-card {
-    padding: 16px;
-  }
-  .chart-card h4 {
-    font-size: 18px;
-    margin-bottom: 12px;
-  }
-  .donut-svg {
-    width: 160px;
-    height: 160px;
-  }
+}
+
+.bar-label-svg,
+.bar-value-svg,
+.tick-label,
+.axis-label {
+  fill: var(--text-muted);
+}
+
+.bar-value-small {
+  fill: var(--text-main);
 }

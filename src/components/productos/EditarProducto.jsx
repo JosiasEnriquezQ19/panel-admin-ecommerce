@@ -2,20 +2,40 @@ import React, { useState, useEffect } from 'react'
 import { API_BASE } from '../../utils/api'
 
 export default function EditarProducto({ producto, onProductoActualizado, onCancelar, onError }) {
-  const [form, setForm] = useState({ 
-    nombre: '', 
-    precio: 0, 
-    descripcion: '', 
-    categoria: '',
-    stock: 0
-  ,
-  imagenUrl: '',
-  estado: 'disponible'
+  const [form, setForm] = useState({
+    nombre: '',
+    precio: 0,
+    descripcion: '',
+    categoriaId: '',
+    stock: 0,
+    imagenUrl: '',
+    estado: 'disponible'
   })
   const [loading, setLoading] = useState(false)
   const [images, setImages] = useState([]) // { productoImagenId?, url, esPrincipal }
   const [newImageUrl, setNewImageUrl] = useState('')
   const [deletedImageIds, setDeletedImageIds] = useState([])
+  const [categorias, setCategorias] = useState([])
+  const [loadingCategories, setLoadingCategories] = useState(false)
+
+  useEffect(() => {
+    fetchCategorias()
+  }, [])
+
+  const fetchCategorias = async () => {
+    setLoadingCategories(true)
+    try {
+      const res = await fetch(`${API_BASE}/Categorias?estado=activo`)
+      if (res.ok) {
+        const data = await res.json()
+        setCategorias(data)
+      }
+    } catch (err) {
+      console.error('Error loading categories', err)
+    } finally {
+      setLoadingCategories(false)
+    }
+  }
 
   // Cargar datos del producto cuando el componente se monta o cambia el producto
   useEffect(() => {
@@ -23,18 +43,18 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
       setForm({
         nombre: producto.nombre || producto.nombreProducto || producto.name || '',
         precio: producto.precio || producto.price || 0,
-  // map possible legacy states to the new enum
-  estado: (producto.estado === 'activo' ? 'disponible' : (producto.estado === 'inactivo' ? 'oculto' : producto.estado)) || 'disponible',
+        // map possible legacy states to the new enum
+        estado: (producto.estado === 'activo' ? 'disponible' : (producto.estado === 'inactivo' ? 'oculto' : producto.estado)) || 'disponible',
         descripcion: producto.descripcion || producto.description || '',
-        categoria: producto.categoria || producto.category || '',
+        categoriaId: producto.categoriaId || '', // Try to use ID if available
         stock: producto.stock || producto.inventario || 0,
-  imagenUrl: producto.imagenUrl || ''
+        imagenUrl: producto.imagenUrl || ''
       })
-  // Map product image columns into images array for editing (imagenUrl..imagenUrl7)
-  // La primera imagen (imagenUrl) siempre es la principal
-  const imageCols = [producto.imagenUrl, producto.imagenUrl2, producto.imagenUrl3, producto.imagenUrl4, producto.imagenUrl5, producto.imagenUrl6, producto.imagenUrl7]
-  const mapped = imageCols.filter(Boolean).map((url, idx) => ({ url: url, esPrincipal: idx === 0 }))
-  setImages(mapped)
+      // Map product image columns into images array for editing (imagenUrl..imagenUrl7)
+      // La primera imagen (imagenUrl) siempre es la principal
+      const imageCols = [producto.imagenUrl, producto.imagenUrl2, producto.imagenUrl3, producto.imagenUrl4, producto.imagenUrl5, producto.imagenUrl6, producto.imagenUrl7]
+      const mapped = imageCols.filter(Boolean).map((url, idx) => ({ url: url, esPrincipal: idx === 0 }))
+      setImages(mapped)
     }
   }, [producto])
 
@@ -74,14 +94,14 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-  const id = producto?.productoId || producto?.id
-  if (!id) {
+    const id = producto?.productoId || producto?.id
+    if (!id) {
       if (onError) onError('No se pudo identificar el producto a editar')
       return
     }
 
     setLoading(true)
-    
+
     try {
       // Build payload matching the Productos table schema and include up to 5 image columns
       const payload = {
@@ -90,21 +110,21 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
         descripcion: form.descripcion,
         precio: Number(form.precio) || 0,
         stock: Number(form.stock) || 0,
-        categoria: form.categoria || '',
+        categoriaId: form.categoriaId || null,
         estado: form.estado || 'disponible'
       }
 
-  // Map images state into imagenUrl..imagenUrl7, asegurando que la imagen principal siempre esté en imagenUrl
-  const imageFields = ['imagenUrl', 'imagenUrl2', 'imagenUrl3', 'imagenUrl4', 'imagenUrl5', 'imagenUrl6', 'imagenUrl7']
-      
+      // Map images state into imagenUrl..imagenUrl7, asegurando que la imagen principal siempre esté en imagenUrl
+      const imageFields = ['imagenUrl', 'imagenUrl2', 'imagenUrl3', 'imagenUrl4', 'imagenUrl5', 'imagenUrl6', 'imagenUrl7']
+
       // Encontrar la imagen principal primero
       const principalImage = images.find(img => img.esPrincipal)
       const otherImages = images.filter(img => !img.esPrincipal)
-      
+
       // Combinar ambas listas, con la principal primero
       const orderedImages = principalImage ? [principalImage, ...otherImages] : otherImages
       const imageValues = orderedImages.map(i => i.url).filter(Boolean)
-      
+
       // Asignar los valores a los campos en el orden correcto
       for (let i = 0; i < imageFields.length; i++) {
         payload[imageFields[i]] = imageValues[i] || ''
@@ -116,14 +136,14 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify(payload)
       })
-      
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => null)
         throw new Error(errorData?.message || 'Error al actualizar el producto')
       }
-      
-  // Notificar al componente padre sobre la actualización exitosa
-  if (onProductoActualizado) onProductoActualizado()
+
+      // Notificar al componente padre sobre la actualización exitosa
+      if (onProductoActualizado) onProductoActualizado()
     } catch (err) {
       if (onError) onError(err.message)
     } finally {
@@ -132,119 +152,133 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
   }
 
   return (
-    <div className="editar-producto-container">
-      <h3>Editar Producto</h3>
-      
-      <form onSubmit={handleSubmit} className="producto-form">
-        <div className="form-grupo">
-          <label htmlFor="nombre">Nombre:</label>
-          <input 
-            id="nombre"
-            name="nombre"
-            type="text"
-            value={form.nombre}
-            onChange={handleChange}
-            required
-            placeholder="Nombre del producto"
-          />
+    <div className="card-content">
+      <h3 className="card-title" style={{ color: 'white' }}>Editar Producto</h3>
+
+      <form onSubmit={handleSubmit} className="producto-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
+
+        {/* Left Column - Basic Info */}
+        <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
+          <div className="form-group">
+            <label style={{ color: 'var(--text-muted)' }}>Nombre</label>
+            <input
+              name="nombre"
+              type="text"
+              value={form.nombre}
+              onChange={handleChange}
+              required
+              style={{ background: '#151521', color: 'white', border: '1px solid var(--border-light)' }}
+            />
+          </div>
+          <div className="form-group">
+            <label style={{ color: 'var(--text-muted)' }}>Precio</label>
+            <input
+              name="precio"
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.precio}
+              onChange={handleChange}
+              required
+              style={{ background: '#151521', color: 'white', border: '1px solid var(--border-light)' }}
+            />
+          </div>
         </div>
-        
-        <div className="form-grupo">
-          <label htmlFor="precio">Precio:</label>
-          <input 
-            id="precio"
-            name="precio"
-            type="number"
-            min="0"
-            step="0.01"
-            value={form.precio}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-  <div className="form-grupo full">
-          <label htmlFor="descripcion">Descripción:</label>
+
+        <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+          <label style={{ color: 'var(--text-muted)' }}>Descripción</label>
           <textarea
-            id="descripcion"
             name="descripcion"
             value={form.descripcion}
             onChange={handleChange}
-            placeholder="Descripción del producto"
             rows="3"
+            style={{ background: '#151521', color: 'white', border: '1px solid var(--border-light)', width: '100%', borderRadius: '10px', padding: '12px' }}
           />
         </div>
-        
-        <div className="form-grupo">
-          <label htmlFor="categoria">Categoría:</label>
-          <input
-            id="categoria"
-            name="categoria"
-            type="text"
-            value={form.categoria}
+
+        <div className="form-group">
+          <label style={{ color: 'var(--text-muted)' }}>Categoría</label>
+          <select
+            name="categoriaId"
+            value={form.categoriaId || ''}
             onChange={handleChange}
-            placeholder="Categoría"
-          />
+            disabled={loadingCategories}
+            style={{ background: '#151521', color: 'white', border: '1px solid var(--border-light)' }}
+          >
+            <option value="">Seleccione una categoría</option>
+            {categorias.map(cat => (
+              <option key={cat.categoriaId} value={cat.categoriaId}>
+                {cat.nombre}
+              </option>
+            ))}
+          </select>
         </div>
-        
-        <div className="form-grupo">
-          <label htmlFor="stock">Stock:</label>
+
+        <div className="form-group">
+          <label style={{ color: 'var(--text-muted)' }}>Stock</label>
           <input
-            id="stock"
             name="stock"
             type="number"
             min="0"
             value={form.stock}
             onChange={handleChange}
+            style={{ background: '#151521', color: 'white', border: '1px solid var(--border-light)' }}
           />
         </div>
-        
-        <div className="form-grupo full">
-          <label htmlFor="imagenUrl">Imagen (URL):</label>
+
+        <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+          <label style={{ color: 'var(--text-muted)' }}>Link de Imagen Principal (URL)</label>
           <input
-            id="imagenUrl"
             name="imagenUrl"
             type="text"
             value={form.imagenUrl}
             onChange={handleChange}
-            placeholder="https://.../imagen.jpg"
-            required
+            placeholder="https://..."
+            style={{ background: '#151521', color: 'white', border: '1px solid var(--border-light)' }}
           />
-          
-          <div className="multi-image-input">
-            <input type="text" placeholder="Añadir URL de imagen" value={newImageUrl} onChange={handleNewImageChange} />
-            <button type="button" onClick={addImage} className="btn-primario">
-              <i className="fas fa-plus-circle"></i> Agregar imagen
+        </div>
+
+        <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+          <label style={{ color: 'var(--text-muted)' }}>Gestión de Imágenes</label>
+
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+            <input
+              type="text"
+              placeholder="Añadir otra URL de imagen"
+              value={newImageUrl}
+              onChange={handleNewImageChange}
+              style={{ flex: 1, background: '#151521', color: 'white', border: '1px solid var(--border-light)', borderRadius: '8px', padding: '10px' }}
+            />
+            <button type="button" onClick={addImage} className="btn-primary" style={{ whiteSpace: 'nowrap' }}>
+              + Agregar
             </button>
           </div>
 
-          <div className="imagen-list">
-            {images.length === 0 && 
-              <div className="preview-placeholder">
-                <i className="fas fa-images"></i>
-                <span>No hay imágenes</span>
-              </div>}
+          {/* Image Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '15px' }}>
+            {images.length === 0 && <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No hay imágenes adicionales.</div>}
+
             {images.map((im, idx) => (
-              <div key={idx} className="imagen-item">
-                <img src={im.url} alt={`img-${idx}`} onError={(e) => e.currentTarget.classList.add('invalid')} />
-                <div className="imagen-item-actions">
-                  <label>
-                    <input type="radio" name="principal-edit" checked={!!im.esPrincipal} onChange={() => markAsPrincipal(idx)} /> Principal
+              <div key={idx} style={{ background: '#1e1e2d', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
+                <img src={im.url} alt="preview" style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '6px', marginBottom: '8px' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <input type="radio" name="principal-edit" checked={!!im.esPrincipal} onChange={() => markAsPrincipal(idx)} /> Princ.
                   </label>
-                  <button type="button" onClick={() => removeImage(idx)} className="btn-secundario">Quitar</button>
+                  <button type="button" onClick={() => removeImage(idx)} style={{ background: 'transparent', border: 'none', color: '#ff6b6b', cursor: 'pointer' }}>✕</button>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-  <div className="form-grupo full">
-          <label htmlFor="estado">Estado:</label>
+        <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+          <label style={{ color: 'var(--text-muted)' }}>Estado</label>
           <select
-            id="estado"
             name="estado"
             value={form.estado}
             onChange={handleChange}
+            style={{ background: '#151521', color: 'white', border: '1px solid var(--border-light)', width: '100%' }}
           >
             <option value="disponible">Disponible</option>
             <option value="agotado">Agotado</option>
@@ -252,22 +286,22 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
             <option value="oculto">Oculto</option>
           </select>
         </div>
-        
-  <div className="form-actions">
-          <button 
-            type="submit" 
-            className="btn-primario"
-            disabled={loading}
-          >
-            {loading ? 'Guardando...' : 'Guardar Cambios'}
-          </button>
-          <button 
-            type="button" 
-            className="btn-secundario"
+
+        <div className="form-actions" style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '20px' }}>
+          <button
+            type="button"
+            className="btn-secondary"
             onClick={onCancelar}
             disabled={loading}
           >
             Cancelar
+          </button>
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={loading}
+          >
+            {loading ? 'Guardando...' : '💾 Guardar Cambios'}
           </button>
         </div>
       </form>

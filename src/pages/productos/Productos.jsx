@@ -3,7 +3,7 @@ import ListaProductos from '../../components/productos/ListaProductos'
 import AgregarProducto from '../../components/productos/AgregarProducto'
 import EditarProducto from '../../components/productos/EditarProducto'
 import DetalleProducto from '../../components/productos/DetalleProducto'
-import '../../components/productos/productos-minimalista.css'
+import '../categorias/categorias.css' // Shared styles
 import { API_BASE } from '../../utils/api'
 
 
@@ -15,31 +15,41 @@ const VISTAS = {
   EDITAR: 'editar'
 }
 
-export default function Productos(){
+export default function Productos() {
   const [productos, setProductos] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [categorias, setCategorias] = useState([]) // Lookup state
+
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)
   const [vistaActual, setVistaActual] = useState(VISTAS.LISTA)
   const [filtroTexto, setFiltroTexto] = useState('')
   const [filtroCategoria, setFiltroCategoria] = useState('')
 
-  useEffect(()=>{ 
+  useEffect(() => {
     fetchProductos()
+    fetchCategorias() // Fetch lookups
     window.fetchProductos = fetchProductos // Hacer disponible globalmente
     return () => { delete window.fetchProductos } // Limpiar al desmontar
   }, [])
 
-  async function fetchProductos(){
+  async function fetchProductos() {
     setLoading(true)
     setError(null)
-    try{
+    try {
       const res = await fetch(`${API_BASE}/Productos`)
-      if(!res.ok) throw new Error('Error al obtener productos')
+      if (!res.ok) throw new Error('Error al obtener productos')
       const data = await res.json()
       setProductos(data)
-    }catch(err){ setError(err.message) }
+    } catch (err) { setError(err.message) }
     setLoading(false)
+  }
+
+  async function fetchCategorias() {
+    try {
+      const res = await fetch(`${API_BASE}/Categorias`)
+      if (res.ok) setCategorias(await res.json())
+    } catch (err) { console.error(err) }
   }
 
   function handleMostrarDetalles(producto) {
@@ -58,7 +68,7 @@ export default function Productos(){
     setVistaActual(VISTAS.AGREGAR)
     setProductoSeleccionado(null)
   }
-  
+
   function handleVolverALista() {
     setProductoSeleccionado(null)
     setVistaActual(VISTAS.LISTA)
@@ -77,20 +87,20 @@ export default function Productos(){
     setVistaActual(VISTAS.LISTA)
   }
 
-  async function handleCambiarEstado(producto){
+  async function handleCambiarEstado(producto) {
     const estadoActual = producto.estado || 'disponible'
     // toggle simple: si estaba disponible -> oculto, si no -> disponible
     const nuevoEstado = estadoActual === 'disponible' ? 'oculto' : 'disponible'
-    
+
     try {
       const res = await fetch(`${API_BASE}/Productos/${producto.productoId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ estado: nuevoEstado })
       })
-      
-      if(!res.ok) throw new Error(`Error al ${nuevoEstado === 'inactivo' ? 'inhabilitar' : 'activar'} producto`)
-      
+
+      if (!res.ok) throw new Error(`Error al ${nuevoEstado === 'inactivo' ? 'inhabilitar' : 'activar'} producto`)
+
       // Si cambiamos el estado del producto seleccionado, actualizamos la vista
       if (productoSeleccionado && productoSeleccionado.productoId === producto.productoId) {
         setProductoSeleccionado({
@@ -98,28 +108,28 @@ export default function Productos(){
           estado: nuevoEstado
         })
       }
-      
+
       fetchProductos()
-    } catch(err) { 
-      setError(err.message) 
+    } catch (err) {
+      setError(err.message)
     }
   }
-  
-  async function handleEliminar(producto){
-    if(!confirm('¿Está seguro que desea eliminar este producto permanentemente?')) return
-    
+
+  async function handleEliminar(producto) {
+    if (!confirm('¿Está seguro que desea eliminar este producto permanentemente?')) return
+
     try {
-  const res = await fetch(`${API_BASE}/Productos/${producto.productoId}`, { method: 'DELETE' })
-      if(!res.ok) throw new Error('Error al eliminar producto')
-      
+      const res = await fetch(`${API_BASE}/Productos/${producto.productoId}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Error al eliminar producto')
+
       // Si eliminamos el producto seleccionado, volvemos a la lista
-  if (productoSeleccionado && productoSeleccionado.productoId === producto.productoId) {
+      if (productoSeleccionado && productoSeleccionado.productoId === producto.productoId) {
         handleVolverALista()
       }
-      
+
       fetchProductos()
-    } catch(err) { 
-      setError(err.message) 
+    } catch (err) {
+      setError(err.message)
     }
   }
 
@@ -130,58 +140,58 @@ export default function Productos(){
       if (filtroCategoria && producto.categoria !== filtroCategoria) {
         return false;
       }
-      
+
       // Si hay texto de búsqueda, filtrar por nombre o ID
       if (filtroTexto) {
         const textoLower = filtroTexto.toLowerCase();
         const nombreCoincide = producto.nombre?.toLowerCase().includes(textoLower);
         const idCoincide = producto.productoId?.toString().includes(textoLower);
-        
+
         return nombreCoincide || idCoincide;
       }
-      
+
       return true; // Incluir si pasa todos los filtros
     });
   }, [productos, filtroTexto, filtroCategoria]);
-  
+
   // Manejadores para los filtros
   const handleFiltroTextoChange = (e) => {
     setFiltroTexto(e.target.value);
   };
-  
+
   const handleFiltroCategoriaChange = (e) => {
     setFiltroCategoria(e.target.value);
   };
 
   return (
-    <div className="productos-page">
+    <div className="categorias-page">
       <header className="page-header">
         <h2>Gestión de Productos</h2>
-        {productos.length > 0 && 
+        {productos.length > 0 &&
           <span className="results-badge">
             {productosFiltrados.length} productos
           </span>
         }
       </header>
-      
+
       {error && <div className="error">{error}</div>}
-      
+
       {/* Navegación superior */}
       <div className="productos-nav">
-        <button 
+        <button
           onClick={handleVolverALista}
           className={vistaActual === VISTAS.LISTA ? 'active' : ''}
         >
           📋 Lista de Productos
         </button>
-        <button 
+        <button
           onClick={handleMostrarAgregar}
           className={vistaActual === VISTAS.AGREGAR ? 'active' : ''}
         >
           ✨ Agregar Producto
         </button>
       </div>
-      
+
       {/* Filtros de productos */}
       {vistaActual === VISTAS.LISTA && (
         <div className="filtros-container">
@@ -195,15 +205,15 @@ export default function Productos(){
             />
           </div>
           <div className="filtro-categoria">
-            <select 
-              value={filtroCategoria} 
+            <select
+              value={filtroCategoria}
               onChange={handleFiltroCategoriaChange}
               className="filtro-select"
             >
               <option value="">Todas las categorías</option>
-              <option value="smartphone">Smartphone</option>
-              <option value="laptop">Laptop</option>
-              <option value="otros">Otros</option>
+              {categorias.map(cat => (
+                <option key={cat.categoriaId} value={cat.nombre}>{cat.nombre}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -217,16 +227,17 @@ export default function Productos(){
           ) : productosFiltrados.length === 0 ? (
             <div className="empty-state">
               <p>No se encontraron productos que coincidan con los filtros</p>
-              <button 
-                onClick={() => {setFiltroTexto(''); setFiltroCategoria('');}}
+              <button
+                onClick={() => { setFiltroTexto(''); setFiltroCategoria(''); }}
                 className="btn-limpiar-filtros"
               >
                 Limpiar filtros
               </button>
             </div>
           ) : (
-            <ListaProductos 
+            <ListaProductos
               productos={productosFiltrados}
+              categorias={categorias} // Pass categories lookup
               onVerDetalles={handleMostrarDetalles}
               onEditar={handleIniciarEdicion}
               onCambiarEstado={handleCambiarEstado}
@@ -239,7 +250,7 @@ export default function Productos(){
 
       {vistaActual === VISTAS.AGREGAR && (
         <div className="vista-agregar">
-          <AgregarProducto 
+          <AgregarProducto
             onProductoCreado={handleProductoCreado}
             onCancelar={handleVolverALista}
             onError={(msg) => setError(msg)}
@@ -249,8 +260,9 @@ export default function Productos(){
 
       {vistaActual === VISTAS.DETALLE && productoSeleccionado && (
         <div className="vista-detalle">
-          <DetalleProducto 
+          <DetalleProducto
             producto={productoSeleccionado}
+            categorias={categorias} // Pass categories for lookup
             onEditar={() => handleIniciarEdicion(productoSeleccionado)}
             onCerrar={handleVolverALista}
           />
@@ -259,7 +271,7 @@ export default function Productos(){
 
       {vistaActual === VISTAS.EDITAR && productoSeleccionado && (
         <div className="vista-editar">
-          <EditarProducto 
+          <EditarProducto
             producto={productoSeleccionado}
             onProductoActualizado={handleProductoActualizado}
             onCancelar={handleVolverALista}

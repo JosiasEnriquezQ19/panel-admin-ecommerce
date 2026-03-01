@@ -8,7 +8,7 @@ export default function Login({ onLoginSuccess }) {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setCredentials(prev => ({
@@ -16,37 +16,57 @@ export default function Login({ onLoginSuccess }) {
       [name]: value
     }))
   }
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    
-    // Verificamos directamente las credenciales sin llamar al backend
-    if (credentials.email === 'admin@example.com' && credentials.password === 'admin123') {
-      // Simulamos un pequeño retraso para dar sensación de procesamiento
-      setTimeout(() => {
-        const mockUser = {
-          id: 1,
-          nombre: 'Administrador',
+
+    try {
+      const response = await fetch(`${API_BASE}/Auth/admin-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           email: credentials.email,
-          role: 'admin'
+          password: credentials.password
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        if (response.status === 401) {
+          setError('Credenciales incorrectas. Verifica tu email y contraseña.')
+        } else {
+          setError(errorData?.message || `Error del servidor (${response.status})`)
         }
-        localStorage.setItem('user', JSON.stringify(mockUser))
-        localStorage.setItem('token', 'demo.token.forTestingOnly')
-        
-        if (onLoginSuccess) onLoginSuccess(mockUser)
         setLoading(false)
-      }, 500)
-    } else {
-      // Si no son las credenciales correctas, mostramos error después de un breve retraso
-      setTimeout(() => {
-        setError('Credenciales incorrectas. Utiliza admin@example.com / admin123')
-        setLoading(false)
-      }, 500)
+        return
+      }
+
+      const data = await response.json()
+
+      // Save token and user data
+      const adminUser = {
+        id: data.admin.adminId,
+        nombre: `${data.admin.nombre} ${data.admin.apellido}`,
+        email: data.admin.email,
+        role: 'admin',
+        nivelAcceso: data.admin.nivelAcceso,
+        token: data.token
+      }
+
+      localStorage.setItem('user', JSON.stringify(adminUser))
+      localStorage.setItem('token', data.token)
+
+      if (onLoginSuccess) onLoginSuccess(adminUser)
+    } catch (err) {
+      console.error('[AdminLogin] Error:', err)
+      setError('Error de conexión con el servidor. Verifica que la API esté corriendo.')
+    } finally {
+      setLoading(false)
     }
   }
-  
+
   return (
     <div className="login-container">
       <div className="login-card">
@@ -54,52 +74,52 @@ export default function Login({ onLoginSuccess }) {
           <h2>Panel Administrativo</h2>
           <p>Inicia sesión para gestionar tu e-commerce</p>
         </div>
-        
+
         {error && (
           <div className="login-error">
             {error}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="login-form">
           <div className="login-form-group">
             <label htmlFor="email">Correo electrónico</label>
-            <input 
+            <input
               id="email"
-              type="email" 
-              name="email" 
-              value={credentials.email} 
-              onChange={handleChange} 
+              type="email"
+              name="email"
+              value={credentials.email}
+              onChange={handleChange}
               required
-              placeholder="admin@example.com"
+              placeholder="admin@tuempresa.com"
             />
           </div>
-          
+
           <div className="login-form-group">
             <label htmlFor="password">Contraseña</label>
-            <input 
+            <input
               id="password"
-              type="password" 
-              name="password" 
-              value={credentials.password} 
-              onChange={handleChange} 
+              type="password"
+              name="password"
+              value={credentials.password}
+              onChange={handleChange}
               required
               placeholder="••••••••"
             />
           </div>
-          
+
           <div className="login-actions">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="login-button"
               disabled={loading}
             >
               {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </button>
           </div>
-          
+
           <div className="login-help">
-            
+
           </div>
         </form>
       </div>
