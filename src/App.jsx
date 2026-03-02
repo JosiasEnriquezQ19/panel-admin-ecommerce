@@ -6,6 +6,7 @@ import Pedidos from './pages/pedidos/Pedidos'
 // import MetodosPago from './pages/metodosPago/MetodosPago' // Oculto temporalmente
 import Direcciones from './pages/direcciones/Direcciones'
 import Dashboard from './pages/Dashboard'
+import Administradores from './pages/administradores/Administradores'
 import Login from './pages/auth/Login'
 import Layout from './components/layout/Layout'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -65,6 +66,8 @@ function MainApp() {
         return <Direcciones />
       case 'pedidos':
         return <Pedidos />
+      case 'administradores':
+        return <Administradores />
       default:
         return <Dashboard />
     }

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import DetalleCliente from '../../components/clientes/DetalleCliente'
 import ListaClientes from '../../components/clientes/ListaClientes'
 import FormCliente from '../../components/clientes/FormCliente'
-import '../../pages/categorias/categorias.css' // Shared theme
+import './clientes-modern.css'
 import { API_BASE } from '../../utils/api'
 
 
@@ -63,6 +63,7 @@ export default function Clientes() {
         email: u.email ?? u.correo ?? '-',
         telefono: u.telefono ?? u.phone ?? u.telefonoContacto ?? '-',
         estado: u.estado ?? 'activo',
+        profilePictureUrl: u.profilePictureUrl ?? u.picture ?? u.fotoPerfil ?? null,
         fechaCreacion: u.fechaCreacion ?? u.createdAt ?? null,
         fechaActualizacion: u.fechaActualizacion ?? u.updatedAt ?? null,
         raw: u
@@ -163,18 +164,14 @@ export default function Clientes() {
   }
 
   return (
-    <div className="categorias-page">
-      <header className="page-header">
-        <h2>Gestión de Clientes</h2>
-        {clientes.length > 0 &&
-          <span className="results-badge">
-            {clientesFiltrados.length} clientes
-          </span>
-        }
+    <div className="clientes-dashboard">
+      <header className="cl-header">
+        <h2 className="cl-title">Clientes</h2>
+        <p className="cl-subtitle">Gestiona la información de todos tus clientes.</p>
       </header>
 
       {error && (
-        <div className="error">
+        <div className="error" style={{ marginBottom: '24px' }}>
           <p>{error}</p>
           <button
             className="alert-close"
@@ -185,25 +182,35 @@ export default function Clientes() {
         </div>
       )}
 
-      {/* Navegación superior - Sin botón de crear */}
-      <div className="productos-nav">
-        <button
+      {/* Navegación superior tabs  */}
+      <div className="cl-tabs-bar">
+        <div
+          className={`cl-tab ${vistaActual === VISTAS.LISTA ? 'active' : ''}`}
           onClick={volverALista}
-          className={vistaActual === VISTAS.LISTA ? 'active' : ''}
         >
-          👥 Lista de Clientes
-        </button>
+          Todos los Clientes <span className="cl-tab-count">{clientes.length.toString().padStart(2, '0')}</span>
+        </div>
+        <div style={{ color: '#9ca3af', fontWeight: 500, fontSize: '0.95rem' }}>
+          Potenciales <span className="cl-tab-count" style={{ background: '#f3f4f6' }}> 00</span>
+        </div>
+        <div style={{ color: '#9ca3af', fontWeight: 500, fontSize: '0.95rem' }}>
+          En Proceso <span className="cl-tab-count" style={{ background: '#f3f4f6' }}> 00</span>
+        </div>
+        <div style={{ color: '#9ca3af', fontWeight: 500, fontSize: '0.95rem' }}>
+          Cerrados <span className="cl-tab-count" style={{ background: '#f3f4f6' }}> 00</span>
+        </div>
       </div>
 
       {/* Renderizado condicional de vistas */}
       {vistaActual === VISTAS.LISTA && (
         <div className="vista-lista-clientes">
-          <div className="filtros-container">
-            <div className="filtro-busqueda">
+          <div className="cl-search-container">
+            <div className="cl-search-box">
+              <svg className="cl-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <input
                 type="text"
-                placeholder="Buscar por nombre, email o teléfono..."
-                className="filtro-input"
+                placeholder="Buscar clientes..."
+                className="cl-search-input"
                 value={busqueda}
                 onChange={handleBusquedaChange}
               />
@@ -213,10 +220,9 @@ export default function Clientes() {
           {loading ? (
             <div className="loading-container">
               <div className="spinner"></div>
-              <p>Cargando clientes...</p>
             </div>
           ) : clientesFiltrados.length === 0 ? (
-            <div className="empty-state">
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
               {busqueda ? (
                 <p>No se encontraron clientes que coincidan con tu búsqueda</p>
               ) : (
@@ -234,7 +240,7 @@ export default function Clientes() {
       )}
 
       {vistaActual === VISTAS.CREAR && (
-        <div className="vista-crear-cliente">
+        <div className="vista-crear-cliente" style={{ background: '#fff', borderRadius: '12px', padding: '24px', border: '1px solid #f3f4f6' }}>
           <FormCliente
             onSaved={handleClienteCreado}
             onCancel={volverALista}
@@ -244,11 +250,10 @@ export default function Clientes() {
       )}
 
       {vistaActual === VISTAS.DETALLE && (
-        <div className="vista-detalle-cliente">
+        <div className="vista-detalle-cliente" style={{ background: '#fff', borderRadius: '12px', padding: '24px', border: '1px solid #f3f4f6' }}>
           {loadingDetalle ? (
             <div className="loading-container">
               <div className="spinner"></div>
-              <p>Cargando detalles del cliente...</p>
             </div>
           ) : (
             <DetalleCliente

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { API_BASE } from '../../utils/api'
+import dashboardImg from '../../assets/dashboard-preview.png'
+import './Login.css'
 
 export default function Login({ onLoginSuccess }) {
   const [credentials, setCredentials] = useState({
@@ -8,6 +10,7 @@ export default function Login({ onLoginSuccess }) {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -45,7 +48,6 @@ export default function Login({ onLoginSuccess }) {
 
       const data = await response.json()
 
-      // Save token and user data
       const adminUser = {
         id: data.admin.adminId,
         nombre: `${data.admin.nombre} ${data.admin.apellido}`,
@@ -68,60 +70,142 @@ export default function Login({ onLoginSuccess }) {
   }
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h2>Panel Administrativo</h2>
-          <p>Inicia sesión para gestionar tu e-commerce</p>
-        </div>
-
-        {error && (
-          <div className="login-error">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="login-form-group">
-            <label htmlFor="email">Correo electrónico</label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              value={credentials.email}
-              onChange={handleChange}
-              required
-              placeholder="admin@tuempresa.com"
-            />
+    <div className="admin-login-wrapper">
+      {/* Left side - Form */}
+      <div className="admin-login-left">
+        <div className="admin-login-form-container">
+          {/* Logo */}
+          <div className="admin-login-logo">
+            <div className="admin-login-logo-mark">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
+            </div>
+            <span className="admin-login-logo-text">MiTienda<span className="admin-login-logo-plus">+</span></span>
           </div>
 
-          <div className="login-form-group">
-            <label htmlFor="password">Contraseña</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              value={credentials.password}
-              onChange={handleChange}
-              required
-              placeholder="••••••••"
-            />
-          </div>
+          {/* Title */}
+          <h1 className="admin-login-title">Inicia sesión en tu cuenta.</h1>
+          <p className="admin-login-subtitle">Ingresa tu correo y contraseña para acceder al panel</p>
 
-          <div className="login-actions">
+          {/* Error */}
+          {error && (
+            <div className="admin-login-alert">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="admin-login-form">
+            <div className="admin-input-group">
+              <div className="admin-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <polyline points="22,7 12,13 2,7" />
+                </svg>
+              </div>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                value={credentials.email}
+                onChange={handleChange}
+                required
+                placeholder="Correo electrónico"
+              />
+            </div>
+
+            <div className="admin-input-group">
+              <div className="admin-input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={credentials.password}
+                onChange={handleChange}
+                required
+                placeholder="Contraseña"
+              />
+              <button
+                type="button"
+                className="admin-toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
+
             <button
               type="submit"
-              className="login-button"
+              className="admin-login-btn"
               disabled={loading}
             >
-              {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+              {loading ? (
+                <>
+                  <svg className="admin-spinner" width="20" height="20" viewBox="0 0 50 50">
+                    <circle cx="25" cy="25" r="20" fill="none" strokeWidth="5"></circle>
+                  </svg>
+                  Iniciando sesión...
+                </>
+              ) : 'Iniciar sesión'}
             </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Right side - Promo Panel */}
+      <div className="admin-login-right">
+        <div className="admin-login-promo">
+          {/* Floating logo */}
+          <div className="admin-promo-logo-float">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
           </div>
 
-          <div className="login-help">
-
+          {/* Dashboard screenshots */}
+          <div className="admin-promo-screenshots">
+            <img
+              src={dashboardImg}
+              alt="Dashboard Preview"
+              className="admin-promo-img admin-promo-img-main"
+            />
+            <img
+              src={dashboardImg}
+              alt="Dashboard Preview Secondary"
+              className="admin-promo-img admin-promo-img-secondary"
+            />
           </div>
-        </form>
+
+          {/* Text content */}
+          <div className="admin-promo-text">
+            <h2>La forma más fácil de gestionar tu tienda.</h2>
+            <p>Accede al panel administrativo de MiTienda+ y controla productos, pedidos, clientes y más.</p>
+          </div>
+        </div>
       </div>
     </div>
   )

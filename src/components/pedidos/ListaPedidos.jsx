@@ -1,105 +1,92 @@
-import React from 'react';
-import './pedidos-styles.css';
-import './pedidos-minimalista.css';
+import React, { useState } from 'react';
+import '../../pages/pedidos/pedidos-modern.css';
 import { formatDatePeru } from '../../utils/dateUtils';
-
-// Los mismos estados de pedido que usamos en otras partes
-const estadosPedido = {
-  'pendiente': { color: '#ffc107', label: 'Pendiente' },
-  'procesando': { color: '#17a2b8', label: 'Procesando' },
-  'enviado': { color: '#28a745', label: 'Enviado' },
-  'entregado': { color: '#6c757d', label: 'Entregado' },
-  'cancelado': { color: '#dc3545', label: 'Cancelado' }
-};
 
 export default function ListaPedidos({ pedidos, verDetalle, cambiarEstado }) {
   if (!pedidos || pedidos.length === 0) {
     return (
-      <div className="lista-vacia">
-        No hay pedidos disponibles
+      <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 16, opacity: 0.5 }}>
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <path d="M16 10a4 4 0 01-8 0" />
+        </svg>
+        <p style={{ fontSize: '1rem', fontWeight: 500 }}>No hay pedidos disponibles</p>
       </div>
     );
   }
 
+  const statusMap = {
+    'pendiente': 'Pendiente',
+    'procesando': 'Procesando',
+    'enviado': 'Enviado',
+    'entregado': 'Entregado',
+    'cancelado': 'Cancelado'
+  };
+
   return (
-    <div className="minimal-table-container">
-      <table className="minimal-table">
+    <div className="pd-table-wrapper">
+      <div className="pd-table-header">
+        <h3 className="pd-table-title">Lista de Pedidos</h3>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button className="pd-btn-outline">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+            Exportar a CSV
+          </button>
+        </div>
+      </div>
+
+      <table className="pd-table">
         <thead>
           <tr>
-            <th style={{ paddingLeft: '20px' }}>ID</th>
-            <th>Usuario</th>
-            <th>Fecha</th>
-            <th style={{ textAlign: 'center' }}>Productos</th>
-            <th>Total</th>
-            <th>Estado</th>
-            <th style={{ textAlign: 'right', paddingRight: '20px' }}>Acciones</th>
+            <th style={{ width: '40px' }}><input type="checkbox" /></th>
+            <th>ID Pedido</th>
+            <th>Cliente</th>
+            <th>Fecha Pedido</th>
+            <th>Precio Total</th>
+            <th>Estado del Pedido</th>
+            <th>Cantidad</th>
+            <th style={{ width: '80px', textAlign: 'center' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {pedidos.map(pedido => (
-            <tr key={pedido.id}>
-              <td style={{ paddingLeft: '20px', color: 'var(--text-muted)' }}>#{pedido.id}</td>
-              <td>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontWeight: '500', color: 'white' }}>{pedido.usuario}</span>
-                  {pedido.usuarioObj && pedido.usuarioObj.telefono &&
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{pedido.usuarioObj.telefono}</span>
-                  }
-                </div>
-              </td>
-              <td style={{ color: 'var(--text-muted)' }}>{formatDatePeru(pedido.fecha)}</td>
-              <td style={{ textAlign: 'center' }}>
-                <span style={{ background: '#151521', padding: '4px 10px', borderRadius: '8px', fontSize: '0.85rem' }}>{pedido.productos}</span>
-              </td>
-              <td style={{ fontWeight: '600', color: 'white' }}>S/ {(Number(pedido.total || 0)).toLocaleString('es-PE')}</td>
-              <td>
-                <span
-                  className="status-badge"
-                  style={{
-                    backgroundColor: estadosPedido[pedido.estado]?.color ? `${estadosPedido[pedido.estado]?.color}20` : '#333',
-                    color: estadosPedido[pedido.estado]?.color || '#ccc',
-                    padding: '6px 12px',
-                    borderRadius: '20px',
-                    fontSize: '0.85rem',
-                    fontWeight: '600',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    border: `1px solid ${estadosPedido[pedido.estado]?.color ? `${estadosPedido[pedido.estado]?.color}40` : '#444'}`
-                  }}
-                >
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: estadosPedido[pedido.estado]?.color || '#ccc' }}></span>
-                  {estadosPedido[pedido.estado]?.label || pedido.estado}
-                </span>
-              </td>
-              <td style={{ textAlign: 'right', paddingRight: '20px' }}>
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                  <button className="btn-icon-small" onClick={() => verDetalle(pedido)} title="Ver detalles">
-                    👁️
-                  </button>
+          {pedidos.map(pedido => {
+            const rawStatus = pedido.estado?.toLowerCase() || 'pendiente';
+            const mappedStatus = statusMap[rawStatus] || 'Pendiente';
+            const statusClass = (rawStatus === 'enviado' || rawStatus === 'entregado') ? 'entregado' :
+              (rawStatus === 'cancelado') ? 'cancelado' :
+                (rawStatus === 'procesando') ? 'procesando' : 'pendiente';
 
-                  <button
-                    className="btn-icon-small"
-                    onClick={() => cambiarEstado(pedido.id, 'enviado')}
-                    disabled={pedido.estado === 'enviado' || pedido.estado === 'entregado' || pedido.estado === 'cancelado'}
-                    title="Marcar como Enviado"
-                    style={{ opacity: (pedido.estado === 'enviado' || pedido.estado === 'entregado' || pedido.estado === 'cancelado') ? 0.3 : 1 }}
-                  >
-                    📦
-                  </button>
+            const clientName = pedido.usuarioObj ? `${pedido.usuarioObj.nombre} ${pedido.usuarioObj.apellido}` : pedido.usuario;
 
-                  <button className="btn-icon-small" onClick={() => {
-                    const nuevo = prompt('Nuevo estado (pendiente, procesando, enviado, entregado, cancelado):', pedido.estado);
-                    if (nuevo) cambiarEstado(pedido.id, nuevo);
-                  }} title="Cambiar Estado">
-                    📝
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+            return (
+              <tr key={pedido.id}>
+                <td><input type="checkbox" /></td>
+                <td style={{ fontWeight: 500 }}>#{pedido.id.toString().padStart(6, '0')}</td>
+                <td>{clientName}</td>
+                <td>{formatDatePeru(pedido.fecha).split(' ')[0]}</td>
+                <td style={{ fontWeight: 600 }}>S/ {(Number(pedido.total || 0)).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                <td>
+                  <span className={`pd-status-badge ${statusClass}`}>
+                    <span className="pd-status-dot"></span>
+                    {mappedStatus}
+                  </span>
+                </td>
+                <td>{pedido.productos} unids</td>
+                <td>
+                  <div className="pd-action-icon" onClick={() => verDetalle(pedido)} title="Ver Detalles">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
   );
 }
+

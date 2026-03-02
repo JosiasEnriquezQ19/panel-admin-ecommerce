@@ -1,4 +1,4 @@
-/* Dashboard Minimal Dark Theme */
+/* Dashboard Minimal Light Theme */
 .dashboard-minimal {
   padding: 30px;
   max-width: 1600px;
@@ -46,17 +46,18 @@
 }
 
 .metric-card {
-  background: var(--card);
-  border-radius: 20px;
+  background: #fff;
+  border-radius: 16px;
   padding: 24px;
   display: flex;
   align-items: flex-start;
   gap: 20px;
-  transition: transform 0.2s, background 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid var(--border);
 }
 
 .metric-card:hover {
-  background: var(--card-hover);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
   transform: translateY(-2px);
 }
 
@@ -109,10 +110,11 @@
 
 /* 2. Chart Section */
 .chart-section-minimal {
-  background: var(--card);
-  border-radius: 20px;
+  background: #fff;
+  border-radius: 16px;
   padding: 30px;
   min-height: 400px;
+  border: 1px solid var(--border);
 }
 
 .section-header {
@@ -152,9 +154,10 @@
 
 /* 3. Recent Orders Table */
 .recent-orders-minimal {
-  background: var(--card);
-  border-radius: 20px;
+  background: #fff;
+  border-radius: 16px;
   padding: 30px;
+  border: 1px solid var(--border);
 }
 
 .btn-text {
@@ -205,8 +208,8 @@
 .user-avatar-small {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: #2c2c35;
+  border-radius: 50%;
+  background: var(--accent-light);
   color: var(--accent);
   display: flex;
   align-items: center;
@@ -233,8 +236,8 @@
 }
 
 .btn-icon-small {
-  background: #2c2c35;
-  border: none;
+  background: var(--hover);
+  border: 1px solid var(--border);
   color: var(--text-muted);
   width: 32px;
   height: 32px;

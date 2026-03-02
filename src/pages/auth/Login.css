@@ -1,0 +1,412 @@
+/* ============================================
+   Admin Login - Split Panel Design
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Wrapper - Full screen split */
+.admin-login-wrapper {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #ffffff;
+}
+
+/* ---- LEFT SIDE: Form ---- */
+.admin-login-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    background: #ffffff;
+}
+
+.admin-login-form-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Logo */
+.admin-login-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 48px;
+}
+
+.admin-login-logo-mark {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.admin-login-logo-text {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.5px;
+}
+
+.admin-login-logo-plus {
+    color: #2563eb;
+    font-weight: 900;
+}
+
+/* Title */
+.admin-login-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.75px;
+    line-height: 1.2;
+}
+
+.admin-login-subtitle {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin: 0 0 36px 0;
+    line-height: 1.5;
+}
+
+/* Error alert */
+.admin-login-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    color: #dc2626;
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-bottom: 24px;
+    animation: shakeX 0.4s ease;
+}
+
+@keyframes shakeX {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-6px);
+    }
+
+    40% {
+        transform: translateX(6px);
+    }
+
+    60% {
+        transform: translateX(-4px);
+    }
+
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+/* Form */
+.admin-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* Input groups with icons */
+.admin-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.admin-input-icon {
+    position: absolute;
+    left: 16px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.admin-input-group input {
+    width: 100%;
+    padding: 16px 48px 16px 48px;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: #1e293b;
+    background: #f8fafc;
+    transition: all 0.25s ease;
+    outline: none;
+}
+
+.admin-input-group input::placeholder {
+    color: #94a3b8;
+}
+
+.admin-input-group input:focus {
+    background: #fff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* Toggle password */
+.admin-toggle-password {
+    position: absolute;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.admin-toggle-password:hover {
+    color: #64748b;
+}
+
+/* Submit button */
+.admin-login-btn {
+    width: 100%;
+    padding: 16px 24px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.admin-login-btn:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45);
+}
+
+.admin-login-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.admin-login-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Spinner */
+.admin-spinner {
+    animation: adminSpin 1s linear infinite;
+}
+
+.admin-spinner circle {
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-dasharray: 80;
+    stroke-dashoffset: 60;
+}
+
+@keyframes adminSpin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---- RIGHT SIDE: Promo Panel ---- */
+.admin-login-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 40%, #1e40af 100%);
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative circles */
+.admin-login-right::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    top: -100px;
+    right: -100px;
+}
+
+.admin-login-right::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50%;
+    bottom: -80px;
+    left: -80px;
+}
+
+.admin-login-promo {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+/* Floating logo */
+.admin-promo-logo-float {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin: 0 auto 36px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: floatBounce 3s ease-in-out infinite;
+}
+
+@keyframes floatBounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Dashboard screenshots */
+.admin-promo-screenshots {
+    position: relative;
+    margin-bottom: 40px;
+    perspective: 1000px;
+}
+
+.admin-promo-img {
+    border-radius: 16px;
+    box-shadow:
+        0 25px 50px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: transform 0.5s ease;
+}
+
+.admin-promo-img-main {
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    z-index: 2;
+    transform: rotateY(-5deg) rotateX(2deg);
+}
+
+.admin-promo-img-main:hover {
+    transform: rotateY(0) rotateX(0) scale(1.02);
+}
+
+.admin-promo-img-secondary {
+    width: 65%;
+    max-width: 280px;
+    position: absolute;
+    bottom: -30px;
+    left: -20px;
+    z-index: 3;
+    transform: rotateY(5deg) rotateX(-2deg);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.admin-promo-img-secondary:hover {
+    transform: rotateY(0) rotateX(0) scale(1.02);
+}
+
+/* Promo text */
+.admin-promo-text h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
+    line-height: 1.3;
+}
+
+.admin-promo-text p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1024px) {
+    .admin-login-right {
+        display: none;
+    }
+
+    .admin-login-left {
+        padding: 32px 24px;
+    }
+
+    .admin-login-wrapper {
+        background: linear-gradient(180deg, #ffffff 60%, #eff6ff 100%);
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-login-title {
+        font-size: 1.6rem;
+    }
+
+    .admin-login-form-container {
+        max-width: 100%;
+    }
+
+    .admin-login-logo {
+        margin-bottom: 32px;
+    }
+
+    .admin-input-group input {
+        padding: 14px 44px 14px 44px;
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+    }
+
+    .admin-login-btn {
+        padding: 14px 20px;
+    }
+}

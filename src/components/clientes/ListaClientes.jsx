@@ -1,72 +1,76 @@
-import React from 'react'
-import '../../pages/categorias/categorias.css' // Shared styles
+import '../../pages/clientes/clientes-modern.css'
 
 export default function ListaClientes({ clientes, onView, onDelete }) {
-  if (!clientes || clientes.length === 0) return <div>No hay clientes.</div>
+  if (!clientes || clientes.length === 0) {
+    return (
+      <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+        <p style={{ fontSize: '1rem', fontWeight: 500 }}>No hay clientes registrados</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="table-responsive">
-      <table className="categories-table">
+    <div className="cl-table-wrapper">
+      <table className="cl-table">
         <thead>
           <tr>
-            <th>Usuario</th>
-            <th>Email</th>
-            <th>Teléfono</th>
+            <th>Clientes</th>
+            <th>Celular</th>
             <th>Estado</th>
-            <th className="th-actions">Acciones</th>
+            <th style={{ textAlign: 'center' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {clientes.map(cliente => {
-            // Obtener iniciales para el avatar
-            const iniciales = `${cliente.nombre?.[0] || ''}${cliente.apellido?.[0] || ''}`.toUpperCase();
+            const nombreCompleto = `${cliente.nombre || ''} ${cliente.apellido || ''}`.trim() || 'Desconocido';
+
+            // Generate a Google-like avatar using ui-avatars, or fallback to an image service
+            const avatarUrl = cliente.profilePictureUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(nombreCompleto)}&background=random&color=fff&rounded=true&size=128`;
 
             return (
               <tr key={cliente.usuarioId}>
                 <td>
-                  <div className="product-identity">
-                    <div className="user-avatar-circle" style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      background: 'var(--accent)',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 'bold',
-                      fontSize: '0.9rem'
-                    }}>
-                      {iniciales || '?'}
-                    </div>
-                    <div className="product-info">
-                      <span className="product-name" style={{ color: 'white' }}>{`${cliente.nombre || ''} ${cliente.apellido || ''}`}</span>
-                      <span className="product-id" style={{ fontSize: '0.8rem', opacity: 0.7 }}>#{cliente.usuarioId}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <img
+                      src={avatarUrl}
+                      alt={nombreCompleto}
+                      style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontWeight: 600, color: '#111827', fontSize: '0.95rem' }}>
+                        {nombreCompleto}
+                      </span>
+                      <span style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '2px' }}>
+                        {cliente.email}
+                      </span>
                     </div>
                   </div>
                 </td>
-                <td>{cliente.email}</td>
-                <td>{cliente.telefono || '-'}</td>
+                <td style={{ color: '#6b7280', fontSize: '0.9rem' }}>
+                  {cliente.telefono || 'Sin celular'}
+                </td>
                 <td>
-                  <span className={`status-badge ${cliente.estado === 'activo' ? 'disponible' : 'inactive'}`}>
+                  <span style={{ color: cliente.estado === 'activo' ? '#10b981' : '#ef4444', fontWeight: 500, fontSize: '0.9rem' }}>
                     {cliente.estado === 'activo' ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
-                <td className="actions-cell">
-                  <button
-                    onClick={() => onView(cliente.usuarioId)}
-                    className="btn-icon view"
-                    title="Ver detalles"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                  </button>
-                  <button
-                    onClick={() => onDelete(cliente.usuarioId)}
-                    className="btn-icon delete"
-                    title="Eliminar usuario"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                  </button>
+                <td>
+                  <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', color: '#6b7280' }}>
+                    <div style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#5b21b6'} onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'} onClick={() => onView(cliente.usuarioId)} title="Ver detalles">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </div>
+                    <div style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'} onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'} onClick={() => onDelete(cliente.usuarioId)} title="Eliminar usuario">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                    </div>
+                  </div>
                 </td>
               </tr>
             );

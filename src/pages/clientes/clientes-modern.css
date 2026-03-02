@@ -1,0 +1,172 @@
+/* ============================================
+   Clientes Dashboard - Modern Clean Light Theme
+   ============================================ */
+
+.clientes-dashboard {
+    padding: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    font-family: inherit;
+}
+
+/* Header */
+.cl-header {
+    margin-bottom: 24px;
+}
+
+.cl-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.cl-subtitle {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Tabs / Filters Bar */
+.cl-tabs-bar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
+}
+
+.cl-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: #6b7280;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 0;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.cl-tab:hover {
+    color: #111827;
+}
+
+.cl-tab.active {
+    color: #5b21b6;
+    /* Purple active state */
+    font-weight: 600;
+}
+
+.cl-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    /* Align with border-bottom of container */
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #5b21b6;
+    border-radius: 2px;
+}
+
+.cl-tab-count {
+    background: #f3f4f6;
+    color: #4b5563;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.cl-tab.active .cl-tab-count {
+    background: rgba(91, 33, 182, 0.1);
+    color: #5b21b6;
+}
+
+/* Search Area */
+.cl-search-container {
+    margin-bottom: 24px;
+    max-width: 400px;
+}
+
+.cl-search-box {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: all 0.2s;
+}
+
+.cl-search-box:focus-within {
+    border-color: #5b21b6;
+    box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+}
+
+.cl-search-icon {
+    color: #9ca3af;
+    margin-right: 12px;
+}
+
+.cl-search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 0.95rem;
+    color: #111827;
+}
+
+.cl-search-input::placeholder {
+    color: #9ca3af;
+}
+
+/* List / Table Wrapper - Ultra Clean */
+.cl-table-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f3f4f6;
+    overflow: hidden;
+}
+
+.cl-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cl-table th {
+    background: #fafafa;
+    color: #4b5563;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.cl-table td {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.95rem;
+    color: #111827;
+    vertical-align: middle;
+}
+
+.cl-table tr:last-child td {
+    border-bottom: none;
+}
+
+.cl-table tr:hover {
+    background: #fcfcfc;
+}
+
+/* Override existing page backgrounds if applied globally */
+body {
+    background-color: #f9fafb;
+}
