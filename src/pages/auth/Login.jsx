@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { API_BASE } from '../../utils/api'
 import dashboardImg from '../../assets/dashboard-preview.png'
+import logoImg from '../../assets/logo-ecommerce.png'
 import './Login.css'
 
 export default function Login({ onLoginSuccess }) {
@@ -76,13 +77,7 @@ export default function Login({ onLoginSuccess }) {
         <div className="admin-login-form-container">
           {/* Logo */}
           <div className="admin-login-logo">
-            <div className="admin-login-logo-mark">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
-            </div>
-            <span className="admin-login-logo-text">MiTienda<span className="admin-login-logo-plus">+</span></span>
+            <img src={logoImg} alt="MiTienda+" className="admin-login-logo-image" style={{ height: '40px', width: 'auto' }} />
           </div>
 
           {/* Title */}
@@ -180,10 +175,7 @@ export default function Login({ onLoginSuccess }) {
         <div className="admin-login-promo">
           {/* Floating logo */}
           <div className="admin-promo-logo-float">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
+            <img src={logoImg} alt="Logo" style={{ width: '100%', height: 'auto' }} />
           </div>
 
           {/* Dashboard screenshots */}
