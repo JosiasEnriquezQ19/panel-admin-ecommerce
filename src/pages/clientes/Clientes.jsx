@@ -129,13 +129,23 @@ export default function Clientes() {
   }
 
   return (
-    <div className="categorias-page">
-      <header className="page-header">
-        <div>
-          <h2>Clientes</h2>
-          <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            Gestiona la información de todos tus clientes. Total: <strong>{clientes.length}</strong>
-          </p>
+    <div className="prod-page">
+      <header className="content-header" style={{ borderBottom: 'none', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ width: 44, height: 44, background: 'var(--text-main)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 010 7.75"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 className="page-title" style={{ fontSize: '1.4rem', margin: 0 }}>Clientes</h2>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              Gestiona la información de todos tus clientes. Total: <strong>{clientes.length}</strong>
+            </p>
+          </div>
         </div>
       </header>
 
