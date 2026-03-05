@@ -30,12 +30,6 @@ const icons = {
       <path d="M16 3.13a4 4 0 010 7.75" />
     </svg>
   ),
-  direcciones: (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  ),
   pedidos: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
@@ -74,6 +68,13 @@ const icons = {
       <line x1="3" y1="18" x2="21" y2="18" />
     </svg>
   ),
+  banners: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <polyline points="21 15 16 10 5 21" />
+    </svg>
+  ),
 }
 
 export default function Sidebar({ onNavigate, currentPage }) {
@@ -86,9 +87,25 @@ export default function Sidebar({ onNavigate, currentPage }) {
     { id: 'categorias', label: 'Categorías', icon: icons.categorias },
     { id: 'pedidos', label: 'Pedidos', icon: icons.pedidos },
     { id: 'usuarios', label: 'Clientes', icon: icons.usuarios },
-    { id: 'direcciones', label: 'Direcciones', icon: icons.direcciones },
+    { id: 'banners', label: 'Banners', icon: icons.banners },
     { id: 'administradores', label: 'Admins', icon: icons.admins },
   ]
+
+  // Filtrar ítems del menú según el nivel de acceso
+  const filteredMenuItems = menuItems.filter(item => {
+    const nivel = user?.nivelAcceso?.toLowerCase() || 'basico';
+
+    if (nivel === 'basico') {
+      return ['dashboard', 'productos', 'pedidos'].includes(item.id);
+    }
+
+    if (nivel === 'medio') {
+      return ['dashboard', 'productos', 'categorias', 'pedidos', 'usuarios'].includes(item.id);
+    }
+
+    // Avanzado ve todo
+    return true;
+  });
 
   return (
     <aside
@@ -96,16 +113,30 @@ export default function Sidebar({ onNavigate, currentPage }) {
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
-      <div className="sidebar-header">
-        <h2 className="sidebar-logo">
-          <img src={logoImg} alt="MiTienda+" className="sidebar-logo-image" style={{ height: '32px', width: 'auto' }} />
+      <div className="sidebar-header" style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <h2 className="sidebar-logo" style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {expanded ? (
+            <img src={logoImg} alt="MiTienda+" style={{ height: '32px', width: 'auto', transition: 'all 0.3s' }} />
+          ) : (
+            <div className="sidebar-logo-mini" style={{
+              fontSize: '1.4rem',
+              fontWeight: '800',
+              fontFamily: 'Inter, sans-serif',
+              display: 'flex',
+              alignItems: 'center',
+              letterSpacing: '-1px'
+            }}>
+              <span style={{ color: '#1a1a1a' }}>M</span>
+              <span style={{ color: '#4fd1c5', fontSize: '1.5rem', marginLeft: '1px' }}>+</span>
+            </div>
+          )}
         </h2>
       </div>
 
       <nav className="sidebar-nav">
         {expanded && <span className="sidebar-section-label">Menú</span>}
         <ul className="sidebar-menu">
-          {menuItems.map(item => (
+          {filteredMenuItems.map(item => (
             <li
               key={item.id}
               className={`sidebar-item ${currentPage === item.id ? 'active' : ''}`}

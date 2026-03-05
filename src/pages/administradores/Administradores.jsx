@@ -230,21 +230,27 @@ export default function Administradores() {
                 <h3>Niveles de Acceso</h3>
                 <div className="admin-access-grid">
                     <div className="admin-access-card">
-                        <div className="admin-access-icon" style={{ background: '#dbeafe', color: '#1e40af' }}>🔵</div>
+                        <div className="admin-access-icon basico">
+                            <span className="admin-access-dot"></span>
+                        </div>
                         <div>
                             <h4>Básico</h4>
                             <p>Puede ver el dashboard, pedidos y productos. No puede modificar configuraciones ni administradores.</p>
                         </div>
                     </div>
                     <div className="admin-access-card">
-                        <div className="admin-access-icon" style={{ background: '#fef3c7', color: '#92400e' }}>🟡</div>
+                        <div className="admin-access-icon medio">
+                            <span className="admin-access-dot"></span>
+                        </div>
                         <div>
                             <h4>Medio</h4>
                             <p>Puede gestionar productos, categorías, pedidos y clientes. No puede crear ni eliminar administradores.</p>
                         </div>
                     </div>
                     <div className="admin-access-card">
-                        <div className="admin-access-icon" style={{ background: '#dcfce7', color: '#166534' }}>🟢</div>
+                        <div className="admin-access-icon avanzado">
+                            <span className="admin-access-dot"></span>
+                        </div>
                         <div>
                             <h4>Avanzado</h4>
                             <p>Acceso total al sistema. Puede crear, editar y eliminar administradores y acceder a todas las funciones.</p>

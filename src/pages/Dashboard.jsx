@@ -318,8 +318,8 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {ultimosPedidos.map(pedido => (
-                    <tr key={pedido.id}>
+                  {ultimosPedidos.map((pedido, index) => (
+                    <tr key={pedido.id || index}>
                       <td>
                         <div className="user-cell">
                           <div className="user-avatar-small">{pedido.cliente?.charAt(0) || 'U'}</div>

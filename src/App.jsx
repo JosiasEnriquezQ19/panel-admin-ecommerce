@@ -4,9 +4,9 @@ import Categorias from './pages/categorias/Categorias'
 import Clientes from './pages/clientes/Clientes'
 import Pedidos from './pages/pedidos/Pedidos'
 // import MetodosPago from './pages/metodosPago/MetodosPago' // Oculto temporalmente
-import Direcciones from './pages/direcciones/Direcciones'
 import Dashboard from './pages/Dashboard'
 import Administradores from './pages/administradores/Administradores'
+import Banners from './pages/banners/Banners'
 import Login from './pages/auth/Login'
 import Layout from './components/layout/Layout'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -49,25 +49,29 @@ function MainApp() {
     }
   }, [logout])
 
-  // Renderizado condicional basado en la ruta actual
+  // Renderizado condicional basado en la ruta actual y nivel de acceso
   const renderCurrentPage = () => {
+    const nivel = user?.nivelAcceso?.toLowerCase() || 'basico';
+
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard />
       case 'productos':
         return <Productos />
       case 'usuarios':
+        if (nivel === 'basico') return <Dashboard />;
         return <Clientes />
       case 'categorias':
+        if (nivel === 'basico') return <Dashboard />;
         return <Categorias />
-      // case 'metodosPago':
-      //   return <MetodosPago /> // Oculto temporalmente
-      case 'direcciones':
-        return <Direcciones />
       case 'pedidos':
         return <Pedidos />
       case 'administradores':
+        if (nivel !== 'avanzado') return <Dashboard />;
         return <Administradores />
+      case 'banners':
+        if (nivel !== 'avanzado') return <Dashboard />;
+        return <Banners />
       default:
         return <Dashboard />
     }

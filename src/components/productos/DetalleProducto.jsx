@@ -128,7 +128,23 @@ export default function DetalleProducto({ producto, onEditar, onCerrar, categori
 
         {/* RIGHT COLUMN: Info */}
         <div className="detalle-prod-right">
-          <div className="new-arrival-tag">{categoryName.toUpperCase()}</div>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', alignItems: 'center' }}>
+            <div className="new-arrival-tag">{categoryName.toUpperCase()}</div>
+            {producto.marca && (
+              <span style={{
+                background: '#f3f4f6',
+                color: '#4b5563',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                {producto.marca}
+              </span>
+            )}
+          </div>
 
           <h1 className="prod-title-large">{producto.nombre || 'Producto sin nombre'}</h1>
 

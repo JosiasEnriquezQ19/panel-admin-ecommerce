@@ -284,7 +284,7 @@ export default function ChartsOverview({ productos = [], pedidos = [], clientes 
                 return (
                   <>
                     <polygon points={area} fill="url(#gradV)" />
-                    <polyline points={points} fill="none" stroke="var(--accent)" strokeWidth="4" strokeLinecap="round" strokeJoin="round" filter="url(#areaShadow)" />
+                    <polyline points={points} fill="none" stroke="var(--accent)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#areaShadow)" />
                     {salesTimeline.map((v, i) => v > 0 && (
                       <circle key={i} cx={(i / 30) * 800} cy={200 - (v / max) * 160 - 10} r="6" fill="#fff" stroke="var(--accent)" strokeWidth="3"
                         onMouseMove={(e) => handleShowTooltip(e, `Día ${i + 1}`, `S/ ${v.toFixed(2)}`)} onMouseLeave={handleHideTooltip}

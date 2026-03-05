@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { formatDatePeru } from '../../utils/dateUtils';
 import { API_BASE } from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 
 const estadosPedido = {
   'pendiente': { bg: '#fef2f2', color: '#ef4444', border: 'rgba(239,68,68,0.25)', label: 'Pendiente' },
@@ -144,6 +145,9 @@ export default function DetallePedido({ pedido, onClose, onCambiarEstado }) {
   const iconWrap = { width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', background: 'rgba(232,87,61,0.08)', color: 'var(--accent)', flexShrink: 0 }
   const cardStyle = { background: '#fafafa', borderRadius: '14px', border: '1px solid #f0f0f2', padding: '18px' }
 
+  const { user } = useAuth()
+  const isReadOnly = user?.nivelAcceso === 'basico'
+
   return (
     <div>
       {/* ── Header: Info del pedido + Estado ── */}
@@ -165,30 +169,32 @@ export default function DetallePedido({ pedido, onClose, onCambiarEstado }) {
         </div>
 
         {/* Cambiar estado */}
-        <form onSubmit={handleCambiarEstado} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <select
-            value={nuevoEstado}
-            onChange={e => setNuevoEstado(e.target.value)}
-            style={{
-              padding: '8px 14px', background: '#fafafa', border: '1px solid #e8e8ed',
-              borderRadius: '10px', fontSize: '0.85rem', color: 'var(--text-main)', fontFamily: 'inherit', cursor: 'pointer',
-            }}
-          >
-            <option value="pendiente">Pendiente</option>
-            <option value="procesando">Procesando</option>
-            <option value="enviado">Enviado</option>
-            <option value="entregado">Entregado</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
-          <button type="submit" disabled={cambiando || nuevoEstado === pedido.estado} style={{
-            padding: '8px 18px', background: nuevoEstado === pedido.estado ? '#e8e8ed' : 'var(--text-main)',
-            color: nuevoEstado === pedido.estado ? 'var(--text-muted)' : '#fff', border: 'none', borderRadius: '10px',
-            fontSize: '0.85rem', fontWeight: 600, cursor: nuevoEstado === pedido.estado ? 'default' : 'pointer',
-            fontFamily: 'inherit', transition: 'all 0.2s', opacity: cambiando ? 0.6 : 1,
-          }}>
-            {cambiando ? 'Guardando...' : 'Actualizar'}
-          </button>
-        </form>
+        {!isReadOnly && (
+          <form onSubmit={handleCambiarEstado} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <select
+              value={nuevoEstado}
+              onChange={e => setNuevoEstado(e.target.value)}
+              style={{
+                padding: '8px 14px', background: '#fafafa', border: '1px solid #e8e8ed',
+                borderRadius: '10px', fontSize: '0.85rem', color: 'var(--text-main)', fontFamily: 'inherit', cursor: 'pointer',
+              }}
+            >
+              <option value="pendiente">Pendiente</option>
+              <option value="procesando">Procesando</option>
+              <option value="enviado">Enviado</option>
+              <option value="entregado">Entregado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+            <button type="submit" disabled={cambiando || nuevoEstado === pedido.estado} style={{
+              padding: '8px 18px', background: nuevoEstado === pedido.estado ? '#e8e8ed' : 'var(--text-main)',
+              color: nuevoEstado === pedido.estado ? 'var(--text-muted)' : '#fff', border: 'none', borderRadius: '10px',
+              fontSize: '0.85rem', fontWeight: 600, cursor: nuevoEstado === pedido.estado ? 'default' : 'pointer',
+              fontFamily: 'inherit', transition: 'all 0.2s', opacity: cambiando ? 0.6 : 1,
+            }}>
+              {cambiando ? 'Guardando...' : 'Actualizar'}
+            </button>
+          </form>
+        )}
       </div>
 
       {successCambio && (

@@ -5,6 +5,7 @@ import EditarProducto from '../../components/productos/EditarProducto'
 import DetalleProducto from '../../components/productos/DetalleProducto'
 import './productos.css'
 import { API_BASE } from '../../utils/api'
+import { useAuth } from '../../context/AuthContext'
 
 const VISTAS = {
   LISTA: 'lista',
@@ -21,9 +22,13 @@ export default function Productos() {
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)
   const [vistaActual, setVistaActual] = useState(VISTAS.LISTA)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
   const [filtroTexto, setFiltroTexto] = useState('')
   const [filtroCategoria, setFiltroCategoria] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('all')
+
+  const { user } = useAuth()
+  const isReadOnly = user?.nivelAcceso === 'basico'
 
   useEffect(() => {
     fetchProductos()
@@ -31,6 +36,13 @@ export default function Productos() {
     window.fetchProductos = fetchProductos
     return () => { delete window.fetchProductos }
   }, [])
+
+  // Guardián para evitar pantalla en blanco si se pierde el producto seleccionado
+  useEffect(() => {
+    if (vistaActual === VISTAS.DETALLE && !productoSeleccionado && !loading) {
+      setVistaActual(VISTAS.LISTA)
+    }
+  }, [vistaActual, productoSeleccionado, loading])
 
   async function fetchProductos() {
     setLoading(true)
@@ -57,6 +69,7 @@ export default function Productos() {
   }
 
   function handleIniciarEdicion(producto = null) {
+    if (isReadOnly) return
     if (producto) setProductoSeleccionado(producto)
     setShowEditModal(true)
   }
@@ -66,8 +79,12 @@ export default function Productos() {
   }
 
   function handleMostrarAgregar() {
-    setVistaActual(VISTAS.AGREGAR)
-    setProductoSeleccionado(null)
+    if (isReadOnly) return
+    setShowAddModal(true)
+  }
+
+  function handleCerrarAddModal() {
+    setShowAddModal(false)
   }
 
   function handleVolverALista() {
@@ -78,13 +95,14 @@ export default function Productos() {
   function handleProductoCreado() {
     setError(null)
     fetchProductos()
-    setVistaActual(VISTAS.LISTA)
+    setShowAddModal(false)
   }
 
   function handleProductoActualizado() {
     setError(null)
     setProductoSeleccionado(null)
     setShowEditModal(false)
+    setVistaActual(VISTAS.LISTA) // Volver a la lista para evitar pantalla en blanco
     fetchProductos()
   }
 
@@ -190,12 +208,14 @@ export default function Productos() {
                 ))}
               </select>
 
-              <button className="prod-btn-new" onClick={handleMostrarAgregar}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-                Nuevo Producto
-              </button>
+              {!isReadOnly && (
+                <button className="prod-btn-new" onClick={handleMostrarAgregar}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Nuevo Producto
+                </button>
+              )}
             </div>
           </div>
 
@@ -225,6 +245,7 @@ export default function Productos() {
                 onCambiarEstado={handleCambiarEstado}
                 onEliminar={handleEliminar}
                 productoSeleccionadoId={productoSeleccionado?.productoId}
+                isReadOnly={isReadOnly}
               />
             )}
           </div>
@@ -237,13 +258,32 @@ export default function Productos() {
         </>
       )}
 
-      {vistaActual === VISTAS.AGREGAR && (
-        <div className="vista-agregar">
-          <AgregarProducto
-            onProductoCreado={handleProductoCreado}
-            onCancelar={handleVolverALista}
-            onError={(msg) => setError(msg)}
-          />
+      {/* Modal Overlay - Agregar Producto */}
+      {showAddModal && (
+        <div className="prod-modal-overlay" onClick={handleCerrarAddModal}>
+          <div className="prod-modal" style={{ maxWidth: 720 }} onClick={e => e.stopPropagation()}>
+            <div className="prod-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: 36, height: 36, background: 'var(--text-main)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 style={{ margin: 0 }}>Nuevo Producto</h3>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 400 }}>Completa los campos para agregar un producto al catálogo</p>
+                </div>
+              </div>
+              <button className="prod-modal-close" onClick={handleCerrarAddModal}>✕</button>
+            </div>
+            <div className="prod-modal-body">
+              <AgregarProducto
+                onProductoCreado={handleProductoCreado}
+                onCancelar={handleCerrarAddModal}
+                onError={(msg) => setError(msg)}
+              />
+            </div>
+          </div>
         </div>
       )}
 

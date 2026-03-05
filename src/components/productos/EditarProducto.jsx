@@ -5,11 +5,13 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
   const [form, setForm] = useState({
     nombre: '',
     precio: 0,
+    precioAntes: 0,
     descripcion: '',
     categoriaId: '',
     stock: 0,
     imagenUrl: '',
-    estado: 'disponible'
+    estado: 'disponible',
+    marca: ''
   })
   const [loading, setLoading] = useState(false)
   const [images, setImages] = useState([])
@@ -34,11 +36,13 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
       setForm({
         nombre: producto.nombre || producto.nombreProducto || producto.name || '',
         precio: producto.precio || producto.price || 0,
+        precioAntes: producto.precioAntes || 0,
         estado: (producto.estado === 'activo' ? 'disponible' : (producto.estado === 'inactivo' ? 'oculto' : producto.estado)) || 'disponible',
         descripcion: producto.descripcion || producto.description || '',
         categoriaId: producto.categoriaId || '',
         stock: producto.stock || producto.inventario || 0,
-        imagenUrl: producto.imagenUrl || ''
+        imagenUrl: producto.imagenUrl || '',
+        marca: producto.marca || ''
       })
       const imageCols = [producto.imagenUrl, producto.imagenUrl2, producto.imagenUrl3, producto.imagenUrl4, producto.imagenUrl5, producto.imagenUrl6, producto.imagenUrl7]
       setImages(imageCols.filter(Boolean).map((url, idx) => ({ url, esPrincipal: idx === 0 })))
@@ -83,9 +87,11 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
         nombre: form.nombre,
         descripcion: form.descripcion,
         precio: Number(form.precio) || 0,
+        precioAntes: Number(form.precioAntes) > 0 ? Number(form.precioAntes) : null,
         stock: Number(form.stock) || 0,
         categoriaId: form.categoriaId || null,
-        estado: form.estado || 'disponible'
+        estado: form.estado || 'disponible',
+        marca: form.marca
       }
 
       const imageFields = ['imagenUrl', 'imagenUrl2', 'imagenUrl3', 'imagenUrl4', 'imagenUrl5', 'imagenUrl6', 'imagenUrl7']
@@ -142,14 +148,18 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
       {/* Row: Nombre + Precio */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
         <div>
           <label style={labelStyle}>Nombre del producto</label>
           <input name="nombre" type="text" value={form.nombre} onChange={handleChange} required style={inputStyle} placeholder="Nombre" />
         </div>
         <div>
-          <label style={labelStyle}>Precio (S/.)</label>
+          <label style={labelStyle}>Precio Oferta (S/.)</label>
           <input name="precio" type="number" min="0" step="0.01" value={form.precio} onChange={handleChange} required style={inputStyle} />
+        </div>
+        <div>
+          <label style={labelStyle}>Precio Antes (Opcional)</label>
+          <input name="precioAntes" type="number" min="0" step="0.01" value={form.precioAntes || ''} onChange={handleChange} style={inputStyle} placeholder="Ej: 99.90" />
         </div>
       </div>
 
@@ -167,7 +177,11 @@ export default function EditarProducto({ producto, onProductoActualizado, onCanc
       </div>
 
       {/* Row: Categoría + Stock */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+        <div>
+          <label style={labelStyle}>Marca</label>
+          <input name="marca" type="text" value={form.marca} onChange={handleChange} style={inputStyle} placeholder="Ej: Nike, Sony..." />
+        </div>
         <div>
           <label style={labelStyle}>Categoría</label>
           <select name="categoriaId" value={form.categoriaId || ''} onChange={handleChange} disabled={loadingCategories} style={inputStyle}>
