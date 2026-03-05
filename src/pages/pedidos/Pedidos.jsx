@@ -12,100 +12,114 @@ export default function Pedidos() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selectedPedido, setSelectedPedido] = useState(null)
+  const [showDetalleModal, setShowDetalleModal] = useState(false)
+  const [filtroEstado, setFiltroEstado] = useState('todos')
 
-  useEffect(() => {
-    const fetchPedidos = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const token = localStorage.getItem('token')
-        const headers = token ? { Authorization: `Bearer ${token}` } : {}
-        const tryWithUserUrl = `${API_BASE}/Pedidos/with-user`
-        let res = await fetch(tryWithUserUrl, { headers })
-        let data = null
+  const fetchPedidos = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const token = localStorage.getItem('token')
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+      const tryWithUserUrl = `${API_BASE}/Pedidos/with-user`
+      let res = await fetch(tryWithUserUrl, { headers })
+      let data = null
 
-        if (res.ok) {
-          data = await res.json()
-        } else if (res.status === 404) {
-          // Fallback
-          const fallbackUrl = `${API_BASE}/Pedidos`
-          const res2 = await fetch(fallbackUrl, { headers })
-          if (!res2.ok) {
-            const errBody = await res2.json().catch(() => null)
-            throw new Error(errBody?.message || `Error ${res2.status} al obtener pedidos`)
-          }
-          data = await res2.json()
+      if (res.ok) {
+        data = await res.json()
+      } else if (res.status === 404) {
+        const fallbackUrl = `${API_BASE}/Pedidos`
+        const res2 = await fetch(fallbackUrl, { headers })
+        if (!res2.ok) {
+          const errBody = await res2.json().catch(() => null)
+          throw new Error(errBody?.message || `Error ${res2.status} al obtener pedidos`)
+        }
+        data = await res2.json()
 
-          // Extract unique users
-          const pedidosArray = Array.isArray(data) ? data : data.items || []
-          const userIds = Array.from(new Set(pedidosArray.map(p => p.usuarioId ?? p.userId ?? p.usuario?.usuarioId).filter(Boolean)))
+        const pedidosArray = Array.isArray(data) ? data : data.items || []
+        const userIds = Array.from(new Set(pedidosArray.map(p => p.usuarioId ?? p.userId ?? p.usuario?.usuarioId).filter(Boolean)))
 
-          const usuariosMap = {}
-          if (userIds.length > 0) {
-            await Promise.all(userIds.map(async (uid) => {
-              try {
-                const r = await fetch(`${API_BASE}/Usuarios/${uid}`, { headers })
-                if (r.ok) {
-                  const u = await r.json()
-                  usuariosMap[uid] = u
-                }
-              } catch (e) { }
-            }))
-          }
-
-          data = pedidosArray.map(p => ({ ...(p || {}), usuario: usuariosMap[p.usuarioId ?? p.userId ?? p.usuario?.usuarioId] ?? p.usuario }))
-        } else {
-          throw new Error(`Error ${res.status} al obtener pedidos`)
+        const usuariosMap = {}
+        if (userIds.length > 0) {
+          await Promise.all(userIds.map(async (uid) => {
+            try {
+              const r = await fetch(`${API_BASE}/Usuarios/${uid}`, { headers })
+              if (r.ok) usuariosMap[uid] = await r.json()
+            } catch (e) { }
+          }))
         }
 
-        const mapped = (Array.isArray(data) ? data : data.items || []).map(p => ({
-          id: p.pedidoId ?? p.id ?? p.orderId,
-          usuarioObj: p.usuario ?? null,
-          usuario: p.usuario ? `${p.usuario.nombre} ${p.usuario.apellido}` : (p.usuarioNombre || `#${p.usuarioId || '?'}`),
-          fecha: p.fechaPedido ?? p.fecha ?? p.createdAt ?? null,
-          productos: Array.isArray(p.detalles) ? p.detalles.length : (p.productosCount ?? p.productos ?? '-'),
-          total: p.total ?? p.totalAmount ?? (p.subtotal ? Number(p.subtotal) + Number(p.costoEnvio || 0) + Number(p.impuestos || 0) : 0),
-          estado: p.estado ?? 'pendiente',
-          raw: p
-        }))
-
-        setPedidos(mapped)
-      } catch (err) {
-        setError(err.message || 'Error al cargar pedidos')
-      } finally {
-        setLoading(false)
+        data = pedidosArray.map(p => ({ ...(p || {}), usuario: usuariosMap[p.usuarioId ?? p.userId ?? p.usuario?.usuarioId] ?? p.usuario }))
+      } else {
+        throw new Error(`Error ${res.status} al obtener pedidos`)
       }
-    }
 
-    fetchPedidos()
-  }, [])
+      const mapped = (Array.isArray(data) ? data : data.items || []).map(p => ({
+        id: p.pedidoId ?? p.id ?? p.orderId,
+        usuarioObj: p.usuario ?? null,
+        usuario: p.usuario ? `${p.usuario.nombre} ${p.usuario.apellido}` : (p.usuarioNombre || `#${p.usuarioId || '?'}`),
+        fecha: p.fechaPedido ?? p.fecha ?? p.createdAt ?? null,
+        productos: Array.isArray(p.detalles) ? p.detalles.length : (p.productosCount ?? p.productos ?? '-'),
+        total: p.total ?? p.totalAmount ?? (p.subtotal ? Number(p.subtotal) + Number(p.costoEnvio || 0) + Number(p.impuestos || 0) : 0),
+        estado: p.estado ?? 'pendiente',
+        raw: p
+      }))
+
+      setPedidos(mapped)
+    } catch (err) {
+      setError(err.message || 'Error al cargar pedidos')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { fetchPedidos() }, [])
 
   function verDetalle(pedido) {
     setSelectedPedido(pedido)
+    setShowDetalleModal(true)
   }
 
-  // To re-implement changing state if needed by the detail view
+  function cerrarDetalleModal() {
+    setShowDetalleModal(false)
+    setSelectedPedido(null)
+  }
+
   async function cambiarEstado(pedidoId, nuevoEstado) {
-    /* omitted for brevity in new UI layout, handled inside verDetalle mostly */
+    const token = localStorage.getItem('token')
+    const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+    const res = await fetch(`${API_BASE}/Pedidos/${pedidoId}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ estado: nuevoEstado })
+    })
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => null)
+      throw new Error(errBody?.message || `Error ${res.status} al cambiar estado`)
+    }
+    // Actualizar pedido en la lista local
+    setPedidos(prev => prev.map(p => p.id === pedidoId ? { ...p, estado: nuevoEstado } : p))
+    // Actualizar el pedido seleccionado en el modal
+    if (selectedPedido && selectedPedido.id === pedidoId) {
+      setSelectedPedido(prev => ({ ...prev, estado: nuevoEstado }))
+    }
   }
 
-  if (loading) return <div>Cargando pedidos...</div>
-  if (error) return <div className="error">{error}</div>
-
-  if (selectedPedido) {
-    return (
-      <div>
-        <DetallePedido
-          pedido={selectedPedido}
-          onClose={() => setSelectedPedido(null)}
-          onCambiarEstado={cambiarEstado}
-        />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div style={{ padding: '80px', textAlign: 'center', color: 'var(--text-muted)' }}>
+      <p>Cargando pedidos...</p>
+    </div>
+  )
+  if (error) return (
+    <div className="prod-error" style={{ margin: '24px' }}>
+      <span>{error}</span>
+      <button onClick={() => setError(null)}>×</button>
+    </div>
+  )
 
   // Dashboard calculations based on real orders
-  const totalOrders = pedidos.length;
+  const ordersExcludingCancelled = pedidos.filter(p => p.estado.toLowerCase() !== 'cancelado');
+  const totalOrders = ordersExcludingCancelled.length;
   const returnsOrders = pedidos.filter(p => p.estado.toLowerCase() === 'cancelado').length;
   const fulfilledOrders = pedidos.filter(p => p.estado.toLowerCase() === 'enviado' || p.estado.toLowerCase() === 'entregado').length;
 
@@ -134,6 +148,20 @@ export default function Pedidos() {
   // Calculate total reimbursed for mock stats
   const totalReimbursed = pedidos.filter(p => p.estado.toLowerCase() === 'cancelado').reduce((sum, p) => sum + Number(p.total || 0), 0);
 
+  const pedidosFiltrados = pedidos.filter(p => {
+    if (filtroEstado === 'todos') return true;
+    return p.estado.toLowerCase() === filtroEstado;
+  });
+
+  const counts = {
+    todos: pedidos.length,
+    pendiente: pedidos.filter(p => p.estado.toLowerCase() === 'pendiente').length,
+    procesando: pedidos.filter(p => p.estado.toLowerCase() === 'procesando').length,
+    enviado: pedidos.filter(p => p.estado.toLowerCase() === 'enviado').length,
+    entregado: pedidos.filter(p => p.estado.toLowerCase() === 'entregado').length,
+    cancelado: pedidos.filter(p => p.estado.toLowerCase() === 'cancelado').length,
+  };
+
   return (
     <div className="pedidos-dashboard">
       <header className="pd-header">
@@ -154,7 +182,7 @@ export default function Pedidos() {
 
       {/* Stats Section */}
       <div className="pd-stats-grid">
-        <div className="pd-stat-card">
+        <div className="pd-stat-card" onClick={() => setFiltroEstado('todos')} style={{ cursor: 'pointer', border: filtroEstado === 'todos' ? '2px solid var(--accent)' : '1px solid var(--border)' }}>
           <div className="pd-stat-header">
             <div className="pd-stat-icon-wrapper">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
@@ -165,16 +193,10 @@ export default function Pedidos() {
             <div>
               <div className="pd-stat-value">{totalOrders.toLocaleString()}</div>
             </div>
-            <div style={{ height: '40px', width: '80px', position: 'relative' }}>
-              <svg width="100%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none">
-                <path d="M0 30 Q 10 20 20 35 T 40 25 T 60 30 T 80 15 T 100 25" fill="none" stroke="var(--accent)" strokeWidth="2" />
-                <path d="M0 30 Q 10 20 20 35 T 40 25 T 60 30 T 80 15 T 100 25 L 100 40 L 0 40 Z" fill="rgba(232, 87, 61, 0.1)" />
-              </svg>
-            </div>
           </div>
         </div>
 
-        <div className="pd-stat-card">
+        <div className="pd-stat-card" onClick={() => setFiltroEstado('cancelado')} style={{ cursor: 'pointer', border: filtroEstado === 'cancelado' ? '2px solid var(--accent)' : '1px solid var(--border)' }}>
           <div className="pd-stat-header">
             <div className="pd-stat-icon-wrapper">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
@@ -185,16 +207,10 @@ export default function Pedidos() {
             <div>
               <div className="pd-stat-value">{returnsOrders.toLocaleString()}</div>
             </div>
-            <div className="pd-stat-visual">
-              <div className="pd-bar" style={{ height: '60%' }}></div>
-              <div className="pd-bar active" style={{ height: '90%' }}></div>
-              <div className="pd-bar" style={{ height: '40%' }}></div>
-              <div className="pd-bar" style={{ height: '70%' }}></div>
-            </div>
           </div>
         </div>
 
-        <div className="pd-stat-card">
+        <div className="pd-stat-card" onClick={() => setFiltroEstado('entregado')} style={{ cursor: 'pointer', border: filtroEstado === 'entregado' ? '2px solid var(--accent)' : '1px solid var(--border)' }}>
           <div className="pd-stat-header">
             <div className="pd-stat-icon-wrapper">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
@@ -203,20 +219,24 @@ export default function Pedidos() {
           </div>
           <div className="pd-stat-value-row" style={{ alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem' }}>
-                <span><span style={{ color: 'var(--text-main)', fontWeight: 600, fontSize: '1.2rem' }}>{fulfilledOrders}</span> Satisfechos</span>
-                <span><span style={{ color: 'var(--text-main)', fontWeight: 600, fontSize: '1.2rem' }}>{Math.max(0, totalOrders - fulfilledOrders - returnsOrders)}</span> Pendientes/Proc.</span>
+              <div className="pd-stat-value">{fulfilledOrders.toLocaleString()}</div>
+              <div style={{ width: '100%', height: '6px', background: '#f1f5f9', borderRadius: '3px', marginTop: '10px', overflow: 'hidden' }}>
+                <div style={{
+                  width: `${totalOrders > 0 ? (fulfilledOrders / totalOrders) * 100 : 0}%`,
+                  height: '100%',
+                  background: 'var(--accent)',
+                  transition: 'width 0.5s ease-out'
+                }}></div>
               </div>
-              <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
-                <div style={{ width: `${totalOrders > 0 ? (fulfilledOrders / totalOrders) * 100 : 0}%`, height: '100%', background: 'var(--accent)' }}></div>
-                <div style={{ width: `${totalOrders > 0 ? ((totalOrders - fulfilledOrders - returnsOrders) / totalOrders) * 100 : 0}%`, height: '100%', background: '#ffedd5' }}></div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                {totalOrders > 0 ? Math.round((fulfilledOrders / totalOrders) * 100) : 0}% del total activo
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Middle Grid Analysis (Full Width now because we drop map) */}
+      {/* Middle Grid Analysis */}
       <div style={{ marginBottom: '24px' }}>
         <div className="pd-card">
           <div className="pd-card-header">
@@ -248,13 +268,71 @@ export default function Pedidos() {
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Filtros de Tabla */}
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        {[
+          { id: 'todos', label: 'Todos' },
+          { id: 'pendiente', label: 'Pendientes' },
+          { id: 'procesando', label: 'Procesando' },
+          { id: 'enviado', label: 'Enviados' },
+          { id: 'entregado', label: 'Entregados' },
+          { id: 'cancelado', label: 'Cancelados' },
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setFiltroEstado(tab.id)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '20px',
+              border: '1px solid #e8e8ed',
+              background: filtroEstado === tab.id ? 'var(--text-main)' : '#fff',
+              color: filtroEstado === tab.id ? '#fff' : 'var(--text-muted)',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            {tab.label}
+            <span style={{
+              fontSize: '0.75rem',
+              opacity: 0.7,
+              background: filtroEstado === tab.id ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)',
+              padding: '2px 6px',
+              borderRadius: '10px'
+            }}>
+              {counts[tab.id]}
+            </span>
+          </button>
+        ))}
+      </div>
+
       <ListaPedidos
-        pedidos={pedidos}
+        pedidos={pedidosFiltrados}
         verDetalle={verDetalle}
         cambiarEstado={cambiarEstado}
       />
+
+      {showDetalleModal && selectedPedido && (
+        <div className="pd-modal-overlay" onClick={cerrarDetalleModal}>
+          <div className="pd-modal" onClick={e => e.stopPropagation()}>
+            <div className="pd-modal-header-bar">
+              <h3>Detalle del Pedido #{selectedPedido.id}</h3>
+              <button className="pd-modal-close" onClick={cerrarDetalleModal}>✕</button>
+            </div>
+            <div className="pd-modal-body">
+              <DetallePedido
+                pedido={selectedPedido}
+                onClose={cerrarDetalleModal}
+                onCambiarEstado={cambiarEstado}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-

@@ -10,7 +10,6 @@ const VISTAS = {
   LISTA: 'lista',
   AGREGAR: 'agregar',
   DETALLE: 'detalle',
-  EDITAR: 'editar'
 }
 
 export default function Productos() {
@@ -21,9 +20,10 @@ export default function Productos() {
 
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)
   const [vistaActual, setVistaActual] = useState(VISTAS.LISTA)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [filtroTexto, setFiltroTexto] = useState('')
   const [filtroCategoria, setFiltroCategoria] = useState('')
-  const [filtroEstado, setFiltroEstado] = useState('all') // 'all', 'disponible', 'oculto'
+  const [filtroEstado, setFiltroEstado] = useState('all')
 
   useEffect(() => {
     fetchProductos()
@@ -58,7 +58,11 @@ export default function Productos() {
 
   function handleIniciarEdicion(producto = null) {
     if (producto) setProductoSeleccionado(producto)
-    setVistaActual(VISTAS.EDITAR)
+    setShowEditModal(true)
+  }
+
+  function handleCerrarEditModal() {
+    setShowEditModal(false)
   }
 
   function handleMostrarAgregar() {
@@ -80,8 +84,8 @@ export default function Productos() {
   function handleProductoActualizado() {
     setError(null)
     setProductoSeleccionado(null)
+    setShowEditModal(false)
     fetchProductos()
-    setVistaActual(VISTAS.LISTA)
   }
 
   async function handleCambiarEstado(producto) {
@@ -113,14 +117,9 @@ export default function Productos() {
 
   const productosFiltrados = React.useMemo(() => {
     return productos.filter(producto => {
-      // State filter
       if (filtroEstado === 'disponible' && (producto.estado || 'disponible') !== 'disponible') return false
       if (filtroEstado === 'oculto' && (producto.estado || 'disponible') !== 'oculto') return false
-
-      // Category filter
       if (filtroCategoria && producto.categoria !== filtroCategoria) return false
-
-      // Text search
       if (filtroTexto) {
         const textoLower = filtroTexto.toLowerCase()
         const nombreCoincide = producto.nombre?.toLowerCase().includes(textoLower)
@@ -148,9 +147,8 @@ export default function Productos() {
 
       {vistaActual === VISTAS.LISTA && (
         <>
-          {/* Toolbar like reference */}
+          {/* Toolbar */}
           <div className="prod-toolbar">
-            {/* Status tabs */}
             <div className="prod-tabs">
               {[
                 { key: 'all', label: 'Todos' },
@@ -168,7 +166,6 @@ export default function Productos() {
               ))}
             </div>
 
-            {/* Right side: search + filter + add */}
             <div className="prod-toolbar-right">
               <div className="prod-search-box">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -232,7 +229,6 @@ export default function Productos() {
             )}
           </div>
 
-          {/* Footer with count */}
           {productosFiltrados.length > 0 && (
             <div className="prod-footer">
               <span>Mostrando {productosFiltrados.length} de {productos.length} productos</span>
@@ -262,16 +258,26 @@ export default function Productos() {
         </div>
       )}
 
-      {vistaActual === VISTAS.EDITAR && productoSeleccionado && (
-        <div className="vista-editar">
-          <EditarProducto
-            producto={productoSeleccionado}
-            onProductoActualizado={handleProductoActualizado}
-            onCancelar={handleVolverALista}
-            onError={(msg) => setError(msg)}
-          />
+      {/* Modal Overlay - Editar Producto */}
+      {showEditModal && productoSeleccionado && (
+        <div className="prod-modal-overlay" onClick={handleCerrarEditModal}>
+          <div className="prod-modal" onClick={e => e.stopPropagation()}>
+            <div className="prod-modal-header">
+              <h3>Editar Producto</h3>
+              <button className="prod-modal-close" onClick={handleCerrarEditModal}>✕</button>
+            </div>
+            <div className="prod-modal-body">
+              <EditarProducto
+                producto={productoSeleccionado}
+                onProductoActualizado={handleProductoActualizado}
+                onCancelar={handleCerrarEditModal}
+                onError={(msg) => setError(msg)}
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>
   )
 }
+

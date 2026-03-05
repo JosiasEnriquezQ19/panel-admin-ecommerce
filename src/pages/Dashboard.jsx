@@ -24,6 +24,11 @@ export default function Dashboard() {
   const [ultimosPedidos, setUltimosPedidos] = useState([])
   const [productosDestacados, setProductosDestacados] = useState([])
 
+  // RAW DATA states for charts
+  const [rawProductos, setRawProductos] = useState([])
+  const [rawClientes, setRawClientes] = useState([])
+  const [rawPedidos, setRawPedidos] = useState([])
+
   useEffect(() => {
     cargarDatosReales();
   }, [])
@@ -77,20 +82,65 @@ export default function Dashboard() {
         }
       } catch (err) { console.log('Error enriqueciendo pedidos:', err); }
 
-      window.productosGlobales = { productos: productosData, clientes: clientesData, pedidos: pedidosData };
+      setRawProductos(productosData);
+      setRawClientes(clientesData);
+      setRawPedidos(pedidosData);
 
       calcularEstadisticas(productosData, clientesData, pedidosData);
 
       if (pedidosData.length > 0) {
-        const pedidosOrdenados = [...pedidosData]
-          .sort((a, b) => new Date(b.fecha || b.fechaCreacion) - new Date(a.fecha || a.fechaCreacion))
+        const getFecha = (p) => {
+          const raw = p.fechaPedido || p.fecha || p.createdAt || p.fechaCreacion || p.date;
+          return raw ? new Date(raw) : null;
+        };
+
+        const ahora = new Date();
+        const cincoDiasAtras = new Date();
+        cincoDiasAtras.setDate(ahora.getDate() - 5);
+
+        const pedidosRecientes = pedidosData.filter(p => {
+          const fecha = getFecha(p);
+          return fecha && fecha >= cincoDiasAtras;
+        });
+
+        const pedidosOrdenados = [...pedidosRecientes]
+          .sort((a, b) => getFecha(b) - getFecha(a))
           .slice(0, 5);
+
         setUltimosPedidos(pedidosOrdenados);
       } else {
         setUltimosPedidos([]);
       }
 
-      if (productosData.length > 0) {
+      // Calcular productos más vendidos dinámicamente excluyendo cancelados
+      if (pedidosData.length > 0 && productosData.length > 0) {
+        const ventasPorProducto = {};
+
+        // Solo contar pedidos que NO están cancelados
+        const pedidosValidos = pedidosData.filter(p => {
+          const estado = String(p.estado || '').toLowerCase();
+          return estado !== 'cancelado' && estado !== 'eliminado';
+        });
+
+        pedidosValidos.forEach(pedido => {
+          const detalles = pedido.detalles || pedido.raw?.detalles || [];
+          detalles.forEach(detalle => {
+            const prodId = detalle.productoId || detalle.id;
+            if (prodId) {
+              ventasPorProducto[prodId] = (ventasPorProducto[prodId] || 0) + (detalle.cantidad || 1);
+            }
+          });
+        });
+
+        // Mapear y ordenar
+        const productosConVentasReales = productosData.map(prod => ({
+          ...prod,
+          ventasReales: ventasPorProducto[prod.id || prod.productoId] || 0
+        })).sort((a, b) => b.ventasReales - a.ventasReales);
+
+        setProductosDestacados(productosConVentasReales.slice(0, 3));
+      } else if (productosData.length > 0) {
+        // Fallback si no hay pedidos cargados aún
         const productosOrdenados = [...productosData].sort((a, b) => (b.ventas || 0) - (a.ventas || 0)).slice(0, 3);
         setProductosDestacados(productosOrdenados);
       } else {
@@ -112,8 +162,8 @@ export default function Dashboard() {
     const productosActivos = productos.filter(p => p.estado !== 'inactivo' && p.estado !== false).length;
     const totalClientes = clientes.length;
     const pedidosArray = Array.isArray(pedidos) ? pedidos : [];
-    const totalPedidos = pedidosArray.length;
-    const pedidosPendientes = pedidosArray.filter(p => p.estado === 'pendiente').length;
+    const totalPedidos = pedidosArray.filter(p => String(p.estado || '').toLowerCase() !== 'cancelado').length;
+    const pedidosPendientes = pedidosArray.filter(p => String(p.estado || '').toLowerCase() === 'pendiente').length;
 
     const getOrderState = (p) => String(p.estado || p.state || p.status || '').toLowerCase();
     const getOrderTotal = (p) => Number(p.total ?? p.monto ?? p.totalAmount ?? 0) || 0;
@@ -157,7 +207,6 @@ export default function Dashboard() {
     else window.dispatchEvent(new CustomEvent('navigate', { detail: { page } }))
   }
 
-  const productosGlobal = window.productosGlobales || { productos: [], clientes: [], pedidos: [] };
 
   if (loading) return <div className="dashboard loading-container"><div className="spinner"></div></div>
 
@@ -242,7 +291,11 @@ export default function Dashboard() {
         </div>
 
         {/* Fila 2: Gráficos y Estadísticas */}
-        <ChartsOverview productos={productosGlobal.productos} pedidos={productosGlobal.pedidos} clientes={productosGlobal.clientes} />
+        <ChartsOverview
+          productos={rawProductos}
+          pedidos={rawPedidos}
+          clientes={rawClientes}
+        />
 
         {/* Fila 3: Pedidos Recientes (Tabla Simple) */}
         <div className="recent-orders-minimal">

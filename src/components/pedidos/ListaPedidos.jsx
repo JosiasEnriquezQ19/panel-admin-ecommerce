@@ -24,12 +24,50 @@ export default function ListaPedidos({ pedidos, verDetalle, cambiarEstado }) {
     'cancelado': 'Cancelado'
   };
 
+  const exportToCSV = () => {
+    // Encabezados del CSV
+    const headers = ["ID Pedido", "Cliente", "Fecha", "Total", "Estado", "Productos"];
+
+    // Mapear los datos de los pedidos a filas
+    const rows = pedidos.map(pedido => {
+      const clientName = pedido.usuarioObj ? `${pedido.usuarioObj.nombre} ${pedido.usuarioObj.apellido}` : pedido.usuario;
+      const status = statusMap[pedido.estado?.toLowerCase()] || pedido.estado;
+
+      return [
+        `#${pedido.id}`,
+        clientName.replace(/,/g, ""), // Limpiar comas para no romper el CSV
+        formatDatePeru(pedido.fecha).split(' ')[0],
+        `S/ ${Number(pedido.total || 0).toFixed(2)}`,
+        status,
+        `${pedido.productos} unids`
+      ];
+    });
+
+    // Unir encabezados y filas con comas y saltos de línea
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    // Crear un blob y descargar el archivo
+    // Agregamos el BOM UTF-8 (\uFEFF) para que Excel reconozca correctamente los caracteres especiales (tildes, S/., etc)
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `reporte_pedidos_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="pd-table-wrapper">
       <div className="pd-table-header">
         <h3 className="pd-table-title">Lista de Pedidos</h3>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <button className="pd-btn-outline">
+          <button className="pd-btn-outline" onClick={exportToCSV}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             Exportar a CSV
           </button>
@@ -39,7 +77,7 @@ export default function ListaPedidos({ pedidos, verDetalle, cambiarEstado }) {
       <table className="pd-table">
         <thead>
           <tr>
-            <th style={{ width: '40px' }}><input type="checkbox" /></th>
+
             <th>ID Pedido</th>
             <th>Cliente</th>
             <th>Fecha Pedido</th>
@@ -61,7 +99,7 @@ export default function ListaPedidos({ pedidos, verDetalle, cambiarEstado }) {
 
             return (
               <tr key={pedido.id}>
-                <td><input type="checkbox" /></td>
+
                 <td style={{ fontWeight: 500 }}>#{pedido.id.toString().padStart(6, '0')}</td>
                 <td>{clientName}</td>
                 <td>{formatDatePeru(pedido.fecha).split(' ')[0]}</td>

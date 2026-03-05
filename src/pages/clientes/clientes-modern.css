@@ -1,31 +1,25 @@
 /* ============================================
-   Clientes Dashboard - Modern Clean Light Theme
+   Clientes Dashboard - Theme Dark (Matching Categories)
    ============================================ */
 
 .clientes-dashboard {
-    padding: 40px;
+    padding: 0;
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
-    font-family: inherit;
+    animation: fadeIn 0.4s ease;
 }
 
-/* Header */
-.cl-header {
-    margin-bottom: 24px;
-}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
 
-.cl-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 8px 0;
-}
-
-.cl-subtitle {
-    color: #6b7280;
-    font-size: 0.95rem;
-    margin: 0;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Tabs / Filters Bar */
@@ -33,49 +27,47 @@
     display: flex;
     align-items: center;
     gap: 24px;
-    margin-bottom: 32px;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 12px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 8px;
 }
 
 .cl-tab {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.95rem;
-    color: #6b7280;
+    font-size: 0.9rem;
+    color: var(--text-muted);
     font-weight: 500;
     cursor: pointer;
-    padding: 8px 0;
+    padding: 10px 0;
     position: relative;
-    transition: color 0.2s;
+    transition: all 0.2s;
 }
 
 .cl-tab:hover {
-    color: #111827;
+    color: var(--text-main);
 }
 
 .cl-tab.active {
-    color: #5b21b6;
-    /* Purple active state */
+    color: var(--accent);
     font-weight: 600;
 }
 
 .cl-tab.active::after {
     content: '';
     position: absolute;
-    bottom: -13px;
-    /* Align with border-bottom of container */
+    bottom: -9px;
     left: 0;
     right: 0;
-    height: 2px;
-    background-color: #5b21b6;
-    border-radius: 2px;
+    height: 3px;
+    background-color: var(--accent);
+    border-radius: 99px;
 }
 
 .cl-tab-count {
-    background: #f3f4f6;
-    color: #4b5563;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 0.75rem;
@@ -83,34 +75,33 @@
 }
 
 .cl-tab.active .cl-tab-count {
-    background: rgba(91, 33, 182, 0.1);
-    color: #5b21b6;
+    background: rgba(108, 93, 211, 0.15);
+    color: var(--accent);
 }
 
-/* Search Area */
-.cl-search-container {
-    margin-bottom: 24px;
-    max-width: 400px;
-}
-
+/* Search Area Overrides */
 .cl-search-box {
     display: flex;
     align-items: center;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 8px 16px;
-    transition: all 0.2s;
+    background: transparent;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+    margin-bottom: 24px;
 }
 
 .cl-search-box:focus-within {
-    border-color: #5b21b6;
-    box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+    border-color: var(--accent);
+    background: var(--card);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .cl-search-icon {
-    color: #9ca3af;
+    color: var(--accent);
+    /* Cambiado a color de acento para que resalte */
     margin-right: 12px;
+    opacity: 0.8;
 }
 
 .cl-search-input {
@@ -119,54 +110,123 @@
     outline: none;
     width: 100%;
     font-size: 0.95rem;
-    color: #111827;
+    color: #ffffff;
+    font-weight: 400;
 }
 
 .cl-search-input::placeholder {
-    color: #9ca3af;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
 }
 
-/* List / Table Wrapper - Ultra Clean */
-.cl-table-wrapper {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f3f4f6;
-    overflow: hidden;
+/* Loading helper */
+.loading {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
 }
 
-.cl-table {
-    width: 100%;
-    border-collapse: collapse;
+/* Profile specific for clienti list */
+.cl-info-stack {
+    display: flex;
+    flex-direction: column;
 }
 
-.cl-table th {
-    background: #fafafa;
-    color: #4b5563;
-    font-size: 0.85rem;
+.cl-name {
     font-weight: 600;
-    text-align: left;
-    padding: 16px 24px;
-    border-bottom: 1px solid #e5e7eb;
+    color: var(--text-main);
 }
 
-.cl-table td {
-    padding: 16px 24px;
-    border-bottom: 1px solid #f3f4f6;
-    font-size: 0.95rem;
-    color: #111827;
-    vertical-align: middle;
+.cl-email {
+    font-size: 0.8rem;
+    color: var(--text-muted);
 }
 
-.cl-table tr:last-child td {
-    border-bottom: none;
+/* ============================================
+   Modal Overlay - Detalle de Usuario
+   ============================================ */
+.cl-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: clFadeIn 0.2s ease;
 }
 
-.cl-table tr:hover {
-    background: #fcfcfc;
+.cl-modal {
+    background: #fff;
+    border: 1px solid #e8e8ed;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: clScaleIn 0.25s ease;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
 }
 
-/* Override existing page backgrounds if applied globally */
-body {
-    background-color: #f9fafb;
+.cl-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px 0;
+}
+
+.cl-modal-header h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.cl-modal-close {
+    background: #f5f5f7;
+    border: none;
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cl-modal-close:hover {
+    background: #e8e8ed;
+    color: var(--text-main);
+}
+
+.cl-modal-body {
+    padding: 24px 28px 28px;
+}
+
+@keyframes clFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes clScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

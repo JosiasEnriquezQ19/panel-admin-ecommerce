@@ -9,28 +9,36 @@
 
 .chart-card {
   background: #fff;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 0;
-  box-shadow: none;
-  border: 1px solid var(--border);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.chart-span-2 {
-  grid-column: span 2;
+.chart-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
 }
 
-.chart-span-3 {
-  grid-column: span 3;
+.chart-span-full {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #ffffff 0%, #f9f9ff 100%);
+  border: none;
+  box-shadow: 0 4px 20px rgba(108, 93, 211, 0.05);
 }
 
 .chart-card h4 {
-  margin: 20px 24px 10px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-main);
+  margin: 24px 24px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1d1f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Chart containers */
@@ -247,10 +255,40 @@
   color: var(--text-muted);
 }
 
-.client-date {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  opacity: 0.7;
+/* Filter Selects Modern Styles */
+.pd-filter-select {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  /* Minimal border */
+  background: #fff;
+  color: #1a1d1f;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+.pd-filter-select:hover {
+  border-color: var(--accent);
+  background: #fdfdff;
+  box-shadow: 0 4px 10px rgba(108, 93, 211, 0.08);
+}
+
+.pd-filter-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(108, 93, 211, 0.1);
+}
+
+.metric-badge {
+  background: rgba(108, 93, 211, 0.08);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 /* Tooltip dark override */
