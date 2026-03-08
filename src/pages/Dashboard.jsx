@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import * as signalR from '@microsoft/signalr'
 import ChartsOverview from '../components/dashboard/ChartsOverview'
 import { API_BASE } from '../utils/api'
 import '../components/dashboard/dashboard-modern.css'
@@ -31,10 +32,39 @@ export default function Dashboard() {
 
   useEffect(() => {
     cargarDatosReales();
+
+    // Configurar SignalR para tiempo real en el Dashboard
+    const hubUrl = API_BASE.replace('/api', '') + '/notificaciones'
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(hubUrl, {
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets
+      })
+      .withAutomaticReconnect()
+      .build()
+
+    connection.start()
+      .then(() => {
+        // Escuchar cuando llega un nuevo pedido para actualizar dashboard
+        connection.on('PedidoRecibido', (data) => {
+          console.log('[SignalR-Dashboard] Nuevo pedido detectado, actualizando stats...')
+          cargarDatosReales(false) // Recargar sin spinner
+        })
+
+        connection.on('PedidoActualizado', (data) => {
+          cargarDatosReales(false)
+        })
+      })
+      .catch(err => console.error('[SignalR-Dashboard] Error:', err))
+
+    return () => {
+      if (connection) connection.stop()
+    }
   }, [])
 
-  async function cargarDatosReales() {
-    setLoading(true)
+  async function cargarDatosReales(showLoading = true) {
+    if (showLoading) setLoading(true)
     setError(null)
 
     try {

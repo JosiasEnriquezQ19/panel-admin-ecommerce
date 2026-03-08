@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import * as signalR from '@microsoft/signalr'
 import DetallePedido from '../../components/pedidos/DetallePedido'
 import ListaPedidos from '../../components/pedidos/ListaPedidos'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -15,8 +16,8 @@ export default function Pedidos() {
   const [showDetalleModal, setShowDetalleModal] = useState(false)
   const [filtroEstado, setFiltroEstado] = useState('todos')
 
-  const fetchPedidos = async () => {
-    setLoading(true)
+  const fetchPedidos = async (showLoading = true) => {
+    if (showLoading) setLoading(true)
     setError(null)
     try {
       const token = localStorage.getItem('token')
@@ -69,11 +70,56 @@ export default function Pedidos() {
     } catch (err) {
       setError(err.message || 'Error al cargar pedidos')
     } finally {
-      setLoading(false)
+      if (showLoading) setLoading(false)
     }
   }
 
-  useEffect(() => { fetchPedidos() }, [])
+  useEffect(() => {
+    fetchPedidos()
+
+    // Configurar SignalR para tiempo real
+    const hubUrl = API_BASE.replace('/api', '') + '/notificaciones'
+    console.log('[SignalR] Conectando a:', hubUrl)
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(hubUrl, {
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets
+      })
+      .withAutomaticReconnect()
+      .build()
+
+    connection.start()
+      .then(() => {
+        console.log('[SignalR] Conectado exitosamente')
+
+        // Escuchar cuando llega un nuevo pedido
+        connection.on('PedidoRecibido', (data) => {
+          console.log('[SignalR] ¡Nuevo pedido recibido!', data)
+          // Refrescar lista sin mostrar el spinner de carga completo para que no sea molesto
+          fetchPedidos(false)
+
+          // Opcional: Sonido de notificación
+          try {
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
+            audio.play().catch(e => console.log('Bloqueo de audio por navegador'))
+          } catch (e) { }
+        })
+
+        // Escuchar cuando se actualiza un pedido
+        connection.on('PedidoActualizado', (data) => {
+          console.log('[SignalR] Pedido actualizado:', data)
+          fetchPedidos(false)
+        })
+      })
+      .catch(err => console.error('[SignalR] Error al conectar:', err))
+
+    return () => {
+      if (connection) {
+        connection.stop()
+      }
+    }
+  }, [])
 
   function verDetalle(pedido) {
     setSelectedPedido(pedido)
