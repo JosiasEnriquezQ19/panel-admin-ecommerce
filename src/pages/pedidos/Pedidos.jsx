@@ -77,13 +77,14 @@ export default function Pedidos() {
   useEffect(() => {
     fetchPedidos()
 
-    // Precargar audio para evitar latencia y bloqueos
-    const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
-    notificationSound.load()
+    // Usar una URL de sonido más simple y directa (campana clásica)
+    const notificationSound = new Audio('https://notificationsounds.com/storage/sounds/notifications/glass.mp3')
+    notificationSound.volume = 1.0
+    notificationSound.preload = 'auto'
 
     // Configurar SignalR para tiempo real
     const hubUrl = API_BASE.replace('/api', '') + '/notificaciones'
-    console.log('[SignalR] Conectando a:', hubUrl)
+    console.log('[SignalR] Intentando conexión con:', hubUrl)
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {
@@ -95,31 +96,34 @@ export default function Pedidos() {
 
     connection.start()
       .then(() => {
-        console.log('[SignalR] Conectado exitosamente')
+        console.log('[SignalR] ¡Conexión en vivo establecida!')
 
-        // Escuchar cuando llega un nuevo pedido
         connection.on('PedidoRecibido', (data) => {
-          console.log('[SignalR] ¡Nuevo pedido recibido!', data)
+          console.log('[SignalR] ¡Pedido detectado!', data)
           fetchPedidos(false)
 
-          // Intentar reproducir sonido
-          notificationSound.play().catch(e => {
-            console.warn('[Audio] Reproducción automática bloqueada por el navegador. Haga clic en la página para habilitarla.', e)
-          })
+          // Fuerza la reproducción del sonido
+          const playPromise = notificationSound.play()
+          if (playPromise !== undefined) {
+            playPromise.then(_ => {
+              console.log('[Audio] Sonido reproducido exitosamente')
+            }).catch(error => {
+              console.error('[Audio] Error de reproducción:', error)
+              // Intento de respaldo: crear un nuevo objeto en el momento
+              const backupSound = new Audio('https://notificationsounds.com/storage/sounds/notifications/glass.mp3')
+              backupSound.play().catch(e => console.error('[Audio] Respaldo fallido'))
+            })
+          }
         })
 
-        // Escuchar cuando se actualiza un pedido
         connection.on('PedidoActualizado', (data) => {
-          console.log('[SignalR] Pedido actualizado:', data)
           fetchPedidos(false)
         })
       })
-      .catch(err => console.error('[SignalR] Error al conectar:', err))
+      .catch(err => console.error('[SignalR] Error crítico:', err))
 
     return () => {
-      if (connection) {
-        connection.stop()
-      }
+      if (connection) connection.stop()
     }
   }, [])
 
