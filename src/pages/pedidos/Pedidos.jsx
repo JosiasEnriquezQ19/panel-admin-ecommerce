@@ -77,6 +77,10 @@ export default function Pedidos() {
   useEffect(() => {
     fetchPedidos()
 
+    // Precargar audio para evitar latencia y bloqueos
+    const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
+    notificationSound.load()
+
     // Configurar SignalR para tiempo real
     const hubUrl = API_BASE.replace('/api', '') + '/notificaciones'
     console.log('[SignalR] Conectando a:', hubUrl)
@@ -96,14 +100,12 @@ export default function Pedidos() {
         // Escuchar cuando llega un nuevo pedido
         connection.on('PedidoRecibido', (data) => {
           console.log('[SignalR] ¡Nuevo pedido recibido!', data)
-          // Refrescar lista sin mostrar el spinner de carga completo para que no sea molesto
           fetchPedidos(false)
 
-          // Opcional: Sonido de notificación
-          try {
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
-            audio.play().catch(e => console.log('Bloqueo de audio por navegador'))
-          } catch (e) { }
+          // Intentar reproducir sonido
+          notificationSound.play().catch(e => {
+            console.warn('[Audio] Reproducción automática bloqueada por el navegador. Haga clic en la página para habilitarla.', e)
+          })
         })
 
         // Escuchar cuando se actualiza un pedido
