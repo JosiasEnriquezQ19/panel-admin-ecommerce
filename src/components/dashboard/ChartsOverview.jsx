@@ -86,7 +86,9 @@ export default function ChartsOverview({ productos = [], pedidos = [], clientes 
 
     normalizedPedidos.forEach(o => {
       const estado = String(o.estado || '').toLowerCase();
-      if (['cancelado', 'eliminado', 'failed'].includes(estado)) return;
+      // Solo sumamos al Top Ventas si el pedido ya está confirmado o entregado
+      const validStates = ['procesando', 'enviado', 'entregado', 'shipped', 'delivered', 'processing'];
+      if (!validStates.includes(estado)) return;
 
       const cliente = o.cliente || (o.usuario && o.usuario.nombre) || 'Anónimo';
       cm[cliente] = (cm[cliente] || 0) + 1;
