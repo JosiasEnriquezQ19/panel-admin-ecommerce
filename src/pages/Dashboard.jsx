@@ -124,17 +124,15 @@ export default function Dashboard() {
           return raw ? new Date(raw) : null;
         };
 
-        const ahora = new Date();
-        const cincoDiasAtras = new Date();
-        cincoDiasAtras.setDate(ahora.getDate() - 5);
-
-        const pedidosRecientes = pedidosData.filter(p => {
-          const fecha = getFecha(p);
-          return fecha && fecha >= cincoDiasAtras;
-        });
-
-        const pedidosOrdenados = [...pedidosRecientes]
-          .sort((a, b) => getFecha(b) - getFecha(a))
+        // Ordenar todos los pedidos por fecha descendente y tomar los 5 más recientes
+        const pedidosOrdenados = [...pedidosData]
+          .sort((a, b) => {
+            const dateA = getFecha(a);
+            const dateB = getFecha(b);
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateB - dateA;
+          })
           .slice(0, 5);
 
         setUltimosPedidos(pedidosOrdenados);
