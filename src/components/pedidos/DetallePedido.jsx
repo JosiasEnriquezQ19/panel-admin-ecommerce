@@ -140,6 +140,29 @@ export default function DetallePedido({ pedido, onClose, onCambiarEstado }) {
   const total = Number(pedido.raw?.total) || (subtotalCalc + costoEnvio + impuestos)
   const estadoInfo = estadosPedido[pedido.estado] || estadosPedido['pendiente']
 
+  const getWhatsAppMessage = (estado, nombre, id) => {
+    const mensajes = {
+      'pendiente': `Hola ${nombre}, te escribimos de MiTiendaPlus sobre tu pedido #${id}. 👋 Vemos que aún está pendiente de pago. Si tuviste algún inconveniente o necesitas ayuda con nuestros métodos de pago, ¡avísanos por aquí para poder ayudarte!`,
+      'procesando': `¡Hola ${nombre}! 👋 Te confirmamos que tu pedido #${id} ya está en etapa de Procesamiento. 📦 Estamos preparando tus productos con mucho cuidado para que salgan lo antes posible. ¡Ya falta poco!`,
+      'enviado': `¡Buenas noticias, ${nombre}! 🎉 Tu pedido #${id} de MiTiendaPlus ya ha sido Enviado. 🚀 Pronto llegará a tus manos. Si deseas que te enviemos el número de seguimiento o guía para rastrear el paquete, dínoslo por este chat.`,
+      'entregado': `¡Hola ${nombre}! 👋 Según nuestro sistema, ya recibiste tu pedido #${id}. 🏠📦 ¡Esperamos que lo disfrutes mucho! Si te encanta tu compra, nos encantaría que nos dejes una reseña. ¡Muchas gracias por elegir MiTiendaPlus!`,
+      'cancelado': `Hola ${nombre}, te escribimos de MiTiendaPlus para informarte que tu pedido #${id} ha sido cancelado. 😔 Si crees que esto fue un error o si tuviste problemas con tu método de pago, avísanos por aquí para poder ayudarte de inmediato y retomar tu pedido si lo deseas.`
+    };
+    return encodeURIComponent(mensajes[estado] || mensajes['pendiente']);
+  };
+
+  const handleWhatsAppClick = () => {
+    const phone = pedido.raw?.telefono || (direccion && (direccion.telefono || direccion.phone)) || pedido.raw?.usuario?.telefono || '';
+    if (!phone) {
+      alert('El cliente no tiene un número de teléfono registrado.');
+      return;
+    }
+    // Limpiar el número de caracteres no numéricos
+    const cleanPhone = phone.replace(/\D/g, '');
+    const message = getWhatsAppMessage(pedido.estado, pedido.usuario, pedido.id);
+    window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+  };
+
   /* ── Estilos (tema claro del sistema) ── */
   const sectionTitle = { color: 'var(--text-main)', fontSize: '0.95rem', fontWeight: 600, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: '10px' }
   const iconWrap = { width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', background: 'rgba(232,87,61,0.08)', color: 'var(--accent)', flexShrink: 0 }
@@ -165,6 +188,20 @@ export default function DetallePedido({ pedido, onClose, onCambiarEstado }) {
             }}>
               {estadoInfo.label}
             </span>
+            <button
+              onClick={handleWhatsAppClick}
+              title="Contactar por WhatsApp"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 12px',
+                background: '#25D366', color: '#fff', border: 'none', borderRadius: '99px',
+                fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'transform 0.2s'
+              }}
+              onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-2.32 0-4.591 1.399-4.591 4.316 0 1.341.677 2.193 1.109 2.508l-.513 1.838 1.954-.51c.367.114.735.172 1.109.172 2.32 0 4.591-1.399 4.591-4.316 0-2.917-2.32-4.308-4.66-4.308zm4.782 4.316c0 2.222-1.742 3.399-3.733 3.399-.283 0-.551-.044-.805-.12l-1.42 0.373 0.375-1.341c-.347-.253-.948-.962-.948-2.311 0-2.222 1.742-3.399 3.733-3.399 1.99 0 3.798 1.177 3.798 3.399zM24 11.5c0 6.627-5.373 12-12 12-2.152 0-4.162-.566-5.895-1.558L0 24l2.126-5.91A11.916 11.916 0 0 1 0 11.5C0 4.873 5.373-.5 12-.5S24 4.873 24 11.5zM12.031 2.25c-5.11 0-9.25 4.14-9.25 9.25 0 1.838.537 3.551 1.459 5.003L2.943 20.84l4.475-1.176a9.204 9.204 0 0 0 4.613 1.236c5.11 0 9.25-4.14 9.25-9.25s-4.14-9.25-9.25-9.25z" /></svg>
+              WhatsApp
+            </button>
           </div>
         </div>
 
