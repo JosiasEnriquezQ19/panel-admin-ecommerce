@@ -113,28 +113,18 @@ export default function Sidebar({ onNavigate, currentPage }) {
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
-      <div className="sidebar-header" style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <h2 className="sidebar-logo" style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {expanded ? (
-            <img src={logoImg} alt="MiTienda+" style={{ height: '32px', width: 'auto', transition: 'all 0.3s' }} />
-          ) : (
-            <div className="sidebar-logo-mini" style={{
-              fontSize: '1.4rem',
-              fontWeight: '800',
-              fontFamily: 'Inter, sans-serif',
-              display: 'flex',
-              alignItems: 'center',
-              letterSpacing: '-1px'
-            }}>
-              <span style={{ color: '#1a1a1a' }}>M</span>
-              <span style={{ color: '#4fd1c5', fontSize: '1.5rem', marginLeft: '1px' }}>+</span>
-            </div>
-          )}
+      <div className="sidebar-header">
+        <h2 className="sidebar-logo">
+          <img src={logoImg} alt="MiTienda+" className="sidebar-logo-full" />
+          <div className="sidebar-logo-mini">
+            <span style={{ color: '#1a1a1a' }}>M</span>
+            <span style={{ color: '#4fd1c5', fontSize: '1.5rem', marginLeft: '1px' }}>+</span>
+          </div>
         </h2>
       </div>
 
       <nav className="sidebar-nav">
-        {expanded && <span className="sidebar-section-label">Menú</span>}
+        <span className="sidebar-section-label">Menú</span>
         <ul className="sidebar-menu">
           {filteredMenuItems.map(item => (
             <li
@@ -151,7 +141,7 @@ export default function Sidebar({ onNavigate, currentPage }) {
       </nav>
 
       <div className="sidebar-footer">
-        <div className="sidebar-user" onClick={() => onNavigate('logout')} style={{ cursor: 'pointer' }}>
+        <div className="sidebar-user" onClick={() => onNavigate('logout')}>
           <div className="sidebar-user-avatar">{icons.user}</div>
           <div className="sidebar-user-info">
             <p className="sidebar-user-name">{user?.nombre || 'Admin'}</p>
