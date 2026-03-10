@@ -110,7 +110,7 @@ export default function ChartsOverview({ productos = [], pedidos = [], clientes 
 
     normalizedPedidos.forEach(o => {
       const estado = String(o.estado || '').toLowerCase();
-      const activeStates = ['pendiente', 'procesando', 'enviado', 'entregado', 'shipped', 'delivered', 'pending', 'processing'];
+      const activeStates = ['procesando', 'enviado', 'entregado', 'shipped', 'delivered', 'processing'];
       if (!activeStates.includes(estado)) return;
 
       const fechaRaw = o.fechaPedido || o.fecha || o.createdAt || o.date;
