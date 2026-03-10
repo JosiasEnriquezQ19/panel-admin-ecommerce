@@ -73,18 +73,33 @@ export default function Dashboard() {
       let pedidosData = [];
 
       try {
-        const productosRes = await fetch(`${API_BASE}/Productos`);
-        if (productosRes.ok) productosData = await productosRes.json();
+        const productosRes = await fetch(`${API_BASE}/Productos?pageSize=100`);
+        if (productosRes.ok) {
+          const resJson = await productosRes.json();
+          productosData = Array.isArray(resJson) ? resJson : (resJson.items || []);
+          // Guardamos el total real para las estadísticas si viene en el objeto paginado
+          if (resJson.totalItems !== undefined) {
+            productosData._totalCount = resJson.totalItems;
+          }
+        }
       } catch (err) { console.log("Error productos", err); }
 
       try {
         const clientesRes = await fetch(`${API_BASE}/Usuarios`);
-        if (clientesRes.ok) clientesData = await clientesRes.json();
+        if (clientesRes.ok) {
+          const resJson = await clientesRes.json();
+          clientesData = Array.isArray(resJson) ? resJson : (resJson.items || []);
+          if (resJson.totalItems !== undefined) clientesData._totalCount = resJson.totalItems;
+        }
       } catch (err) { console.log("Error clientes", err); }
 
       try {
         const pedidosRes = await fetch(`${API_BASE}/Pedidos`);
-        if (pedidosRes.ok) pedidosData = await pedidosRes.json();
+        if (pedidosRes.ok) {
+          const resJson = await pedidosRes.json();
+          pedidosData = Array.isArray(resJson) ? resJson : (resJson.items || []);
+          if (resJson.totalItems !== undefined) pedidosData._totalCount = resJson.totalItems;
+        }
       } catch (err) { console.log("Error pedidos", err); }
 
       // Enriquecer pedidos
@@ -186,11 +201,11 @@ export default function Dashboard() {
   }
 
   function calcularEstadisticas(productos, clientes, pedidos) {
-    const totalProductos = productos.length;
-    const productosActivos = productos.filter(p => p.estado !== 'inactivo' && p.estado !== false).length;
-    const totalClientes = clientes.length;
+    const totalProductos = productos._totalCount ?? productos.length;
+    const productosActivos = productos.filter(p => p.estado !== 'oculto' && p.estado !== 'descontinuado' && p.estado !== false).length;
+    const totalClientes = clientes._totalCount ?? clientes.length;
     const pedidosArray = Array.isArray(pedidos) ? pedidos : [];
-    const totalPedidos = pedidosArray.filter(p => String(p.estado || '').toLowerCase() !== 'cancelado').length;
+    const totalPedidos = pedidos._totalCount ?? pedidosArray.filter(p => String(p.estado || '').toLowerCase() !== 'cancelado').length;
     const pedidosPendientes = pedidosArray.filter(p => String(p.estado || '').toLowerCase() === 'pendiente').length;
 
     const getOrderState = (p) => String(p.estado || p.state || p.status || '').toLowerCase();

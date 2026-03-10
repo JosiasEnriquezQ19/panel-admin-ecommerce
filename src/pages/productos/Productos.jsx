@@ -15,6 +15,7 @@ const VISTAS = {
 
 export default function Productos() {
   const [productos, setProductos] = useState([])
+  const [totalProductosDB, setTotalProductosDB] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [categorias, setCategorias] = useState([])
@@ -48,10 +49,15 @@ export default function Productos() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`${API_BASE}/Productos`)
+      const res = await fetch(`${API_BASE}/Productos?pageSize=100`)
       if (!res.ok) throw new Error('Error al obtener productos')
       const data = await res.json()
-      setProductos(data)
+      // Manejar tanto el array directo como el objeto paginado (PagedResult)
+      const listReady = Array.isArray(data) ? data : (data.items || [])
+      const totalCount = data.totalItems ?? listReady.length
+
+      setProductos(listReady)
+      setTotalProductosDB(totalCount)
     } catch (err) { setError(err.message) }
     setLoading(false)
   }
@@ -149,7 +155,7 @@ export default function Productos() {
   }, [productos, filtroTexto, filtroCategoria, filtroEstado])
 
   const countByState = {
-    all: productos.length,
+    all: totalProductosDB,
     disponible: productos.filter(p => (p.estado || 'disponible') === 'disponible').length,
     oculto: productos.filter(p => p.estado === 'oculto').length,
   }
