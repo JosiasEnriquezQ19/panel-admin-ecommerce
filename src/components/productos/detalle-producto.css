@@ -104,7 +104,7 @@
 .detalle-prod-main-img {
     width: 100%;
     aspect-ratio: 1 / 1.05;
-    background: #f3f4f6;
+    background: #ffffff;
     border-radius: 16px;
     display: flex;
     align-items: center;
@@ -132,7 +132,7 @@
 
 .detalle-prod-thumb {
     aspect-ratio: 1;
-    background: #f3f4f6;
+    background: #ffffff;
     border-radius: 12px;
     display: flex;
     align-items: center;

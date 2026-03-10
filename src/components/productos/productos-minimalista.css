@@ -145,7 +145,7 @@
   border-radius: 12px;
   /* Smoother corners */
   object-fit: cover;
-  background-color: var(--bg);
+  background-color: #ffffff;
   border: 1px solid var(--border-light);
 }
 
