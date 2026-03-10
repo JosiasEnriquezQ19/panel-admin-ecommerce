@@ -205,7 +205,10 @@ export default function Dashboard() {
     const productosActivos = productos.filter(p => p.estado !== 'oculto' && p.estado !== 'descontinuado' && p.estado !== false).length;
     const totalClientes = clientes._totalCount ?? clientes.length;
     const pedidosArray = Array.isArray(pedidos) ? pedidos : [];
-    const totalPedidos = pedidos._totalCount ?? pedidosArray.filter(p => String(p.estado || '').toLowerCase() !== 'cancelado').length;
+    const totalPedidos = pedidosArray.filter(p => {
+      const estado = String(p.estado || '').toLowerCase();
+      return !['cancelado', 'eliminado', 'failed'].includes(estado);
+    }).length;
     const pedidosPendientes = pedidosArray.filter(p => String(p.estado || '').toLowerCase() === 'pendiente').length;
 
     const getOrderState = (p) => String(p.estado || p.state || p.status || '').toLowerCase();
