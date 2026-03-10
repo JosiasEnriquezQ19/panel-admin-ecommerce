@@ -178,6 +178,12 @@ export default function Pedidos() {
   // Data agrupada por fecha para el gráfico funcional
   const chartData = pedidos.reduce((acc, pedido) => {
     if (!pedido.fecha) return acc;
+
+    // Solo contar pedidos que representen ventas confirmadas o en proceso
+    const estado = String(pedido.estado || '').toLowerCase();
+    const estadosValidos = ['procesando', 'enviado', 'entregado'];
+    if (!estadosValidos.includes(estado)) return acc;
+
     const dateObj = new Date(pedido.fecha);
     const day = dateObj.getDate().toString().padStart(2, '0');
     const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');

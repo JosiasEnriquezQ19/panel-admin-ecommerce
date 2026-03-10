@@ -213,7 +213,7 @@ export default function Dashboard() {
 
     const pedidosFiltradosParaVentas = pedidosArray.filter(p => {
       const estado = getOrderState(p);
-      return ['enviado', 'entregado', 'shipped', 'delivered'].includes(estado);
+      return ['procesando', 'enviado', 'entregado', 'processing', 'shipped', 'delivered'].includes(estado);
     });
 
     const ventasMes = pedidosFiltradosParaVentas.reduce((total, pedido) => total + getOrderTotal(pedido), 0);
