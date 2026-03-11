@@ -146,33 +146,55 @@
 
 .banner-actions {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 12px;
+    right: 12px;
     display: flex;
-    gap: 5px;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+.banner-card:hover .banner-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .banner-actions {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .banner-btn-action {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    border: none;
-    background: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    color: var(--text-muted);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .banner-btn-action:hover {
-    background: #f8f9fa;
-    transform: scale(1.1);
+    background: #fff;
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    border-color: var(--border);
 }
 
 .banner-btn-action.delete:hover {
-    color: #dc2626;
+    color: #ef4444;
+    border-color: #fca5a5;
+    background: #fef2f2;
 }
 
 /* Modal Form styles */
