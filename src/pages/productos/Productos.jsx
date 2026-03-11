@@ -140,10 +140,21 @@ export default function Productos() {
   }
 
   const productosFiltrados = React.useMemo(() => {
+    const getCatName = (p) => {
+      if (p.categoria?.nombre) return p.categoria.nombre;
+      if (p.nombreCategoria) return p.nombreCategoria;
+      if (typeof p.categoria === 'string') return p.categoria;
+      if (p.categoriaId && categorias.length > 0) {
+        const cat = categorias.find(c => c.categoriaId === p.categoriaId);
+        if (cat) return cat.nombre;
+      }
+      return '';
+    };
+
     return productos.filter(producto => {
       if (filtroEstado === 'disponible' && (producto.estado || 'disponible') !== 'disponible') return false
       if (filtroEstado === 'oculto' && (producto.estado || 'disponible') !== 'oculto') return false
-      if (filtroCategoria && producto.categoria !== filtroCategoria) return false
+      if (filtroCategoria && getCatName(producto) !== filtroCategoria) return false
       if (filtroTexto) {
         const textoLower = filtroTexto.toLowerCase()
         const nombreCoincide = producto.nombre?.toLowerCase().includes(textoLower)
