@@ -98,6 +98,7 @@
 .ajustes-form input,
 .ajustes-form textarea {
     width: 100%;
+    box-sizing: border-box;
     padding: 12px 14px;
     border: 1px solid var(--border);
     border-radius: 10px;
