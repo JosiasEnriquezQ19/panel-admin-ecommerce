@@ -26,13 +26,35 @@ const UserIcon = () => (
 
 export default function DetalleCliente({ cliente }) {
   const [direcciones, setDirecciones] = useState([])
+  const [pedidosValidos, setPedidosValidos] = useState(0)
   const [loadingDirecciones, setLoadingDirecciones] = useState(false)
 
   useEffect(() => {
     if (cliente && (cliente.usuarioId || cliente.id)) {
-      fetchDirecciones(cliente.usuarioId || cliente.id)
+      const uId = cliente.usuarioId || cliente.id
+      fetchDirecciones(uId)
+      fetchPedidosCount(uId)
     }
   }, [cliente])
+
+  const fetchPedidosCount = async (usuarioId) => {
+    try {
+      const token = localStorage.getItem('token')
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+      const res = await fetch(`${API_BASE}/Pedidos/usuario/${usuarioId}`, { headers })
+      if (res.ok) {
+        const data = await res.json()
+        const pedidos = Array.isArray(data) ? data : []
+        // Filtrar solo pedidos: procesando, enviado o entregado
+        const validos = pedidos.filter(p => 
+          ['procesando', 'enviado', 'entregado'].includes(p.estado?.toLowerCase())
+        ).length
+        setPedidosValidos(validos)
+      }
+    } catch (err) {
+      console.error('Error al cargar pedidos del cliente', err)
+    }
+  }
 
   const fetchDirecciones = async (usuarioId) => {
     setLoadingDirecciones(true)
@@ -171,10 +193,9 @@ export default function DetalleCliente({ cliente }) {
         </div>
       </div>
 
-      {/* Estadísticas rápidas */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '20px' }}>
         {[
-          { icon: <ShoppingBagIcon />, label: 'Pedidos', val: '0' },
+          { icon: <ShoppingBagIcon />, label: 'Ventas Realizadas', val: pedidosValidos },
           { icon: <ClockIcon />, label: 'Última actividad', val: ultimaActividad },
           { icon: <UserIcon />, label: 'Tipo de cuenta', val: 'Cliente' },
         ].map((stat, i) => (
