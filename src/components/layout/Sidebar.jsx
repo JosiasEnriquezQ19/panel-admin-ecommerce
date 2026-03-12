@@ -89,6 +89,7 @@ export default function Sidebar({ onNavigate, currentPage }) {
     { id: 'usuarios', label: 'Clientes', icon: icons.usuarios },
     { id: 'banners', label: 'Banners', icon: icons.banners },
     { id: 'administradores', label: 'Admins', icon: icons.admins },
+    { id: 'ajustes', label: 'Ajustes SEO', icon: icons.settings },
   ]
 
   // Filtrar ítems del menú según el nivel de acceso

@@ -7,7 +7,9 @@ import Pedidos from './pages/pedidos/Pedidos'
 import Dashboard from './pages/Dashboard'
 import Administradores from './pages/administradores/Administradores'
 import Banners from './pages/banners/Banners'
+import Ajustes from './pages/ajustes/Ajustes'
 import Login from './pages/auth/Login'
+
 import Layout from './components/layout/Layout'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import './layout-styles.css'
@@ -72,6 +74,9 @@ function MainApp() {
       case 'banners':
         if (nivel !== 'avanzado') return <Dashboard />;
         return <Banners />
+      case 'ajustes':
+        if (nivel !== 'avanzado') return <Dashboard />;
+        return <Ajustes />
       default:
         return <Dashboard />
     }
