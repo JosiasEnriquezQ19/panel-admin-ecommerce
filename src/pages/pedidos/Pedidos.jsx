@@ -6,7 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import './pedidos-modern.css'
 import { formatDatePeru, getDateFromPeriod } from '../../utils/dateUtils'
 
-import { API_BASE } from '../../utils/api'
+import { API_BASE, API_ORIGIN } from '../../utils/api'
 
 export default function Pedidos() {
   const [pedidos, setPedidos] = useState([])
@@ -83,7 +83,7 @@ export default function Pedidos() {
     notificationSound.preload = 'auto'
 
     // Configurar SignalR para tiempo real
-    const hubUrl = API_BASE.replace('/api', '') + '/notificaciones'
+    const hubUrl = `${API_ORIGIN}/notificaciones`
     console.log('[SignalR] Intentando conexión con:', hubUrl)
 
     const connection = new signalR.HubConnectionBuilder()

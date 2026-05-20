@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import * as signalR from '@microsoft/signalr'
 import ChartsOverview from '../components/dashboard/ChartsOverview'
-import { API_BASE } from '../utils/api'
+import { API_BASE, API_ORIGIN } from '../utils/api'
 import '../components/dashboard/dashboard-modern.css'
 // Import icon library if available, otherwise usage of i tags with classes (FontAwesome assumed or generic)
 
@@ -34,7 +34,7 @@ export default function Dashboard() {
     cargarDatosReales();
 
     // Configurar SignalR para tiempo real en el Dashboard
-    const hubUrl = API_BASE.replace('/api', '') + '/notificaciones'
+    const hubUrl = `${API_ORIGIN}/notificaciones`
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {
